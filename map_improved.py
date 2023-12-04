@@ -9,12 +9,12 @@ cap = cv2.VideoCapture('output_videonoised000.avi')
 
 # 视频编码器和视频输出
 fourcc = cv2.VideoWriter_fourcc(*'XVID')
-out = cv2.VideoWriter('output_video1noised.avi', fourcc, 30.0, (1280, 720))
+out = cv2.VideoWriter('output_video1clean_improved.avi', fourcc, 30.0, (1280, 720))
 
 ret1, prev1 = cap1.read()
 ret, prev_frame = cap.read()
 
-prev_frame=prev1
+prev_frame = prev1
 
 denoised_frame = prev_frame
 out.write(denoised_frame)
@@ -36,13 +36,15 @@ while cap.isOpened():
         for y in range(0, prev_frame.shape[1], win_size):
             for c in range(0, prev_frame.shape[2]):
                 varx = np.float64(0)
+                diff = np.float64(0)
                 for i in range(0, win_size):
                     for j in range(0, win_size):
-                        diff = np.float64(current_frame[x + i, y + j, c]) - np.float64(prev_frame[x + i, y + j, c])
-                        diff = diff ** 2
-                        varx += diff
-                varx=varx/win_area
-                lam = varn / varx
+                        yn = np.float64(current_frame[x + i, y + j, c])
+                        xn_1 = np.float64(prev_frame[x + i, y + j, c])
+                        diff += yn**2+xn_1**2+2*yn*xn_1
+
+                varx = (diff / win_area) / (25 + diff / win_area)
+                lam = 1-varx
                 for i in range(0, win_size):
                     for j in range(0, win_size):
                         factor1 = np.float64(current_frame[x + i, y + j, c]) / (1 + lam)
