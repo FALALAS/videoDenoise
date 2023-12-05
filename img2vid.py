@@ -2,8 +2,8 @@ import cv2
 import os
 
 # 图片文件夹路径
-image_folder = 'noised000var25'  # 图片文件夹名
-video_name = 'output_videonoised000.avi'
+image_folder = '000'  # 图片文件夹名
+video_name = 'output_video000.avi'
 
 # 视频的帧率
 fps = 30

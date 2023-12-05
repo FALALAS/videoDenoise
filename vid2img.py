@@ -1,7 +1,7 @@
 import cv2
 
 # 视频文件路径
-video_path = 'output_video1noised.avi'
+video_path = 'output_video1clean_improved.avi'
 
 # 读取视频
 cap = cv2.VideoCapture(video_path)
