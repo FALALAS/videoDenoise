@@ -18,7 +18,7 @@ if first_image is None:
 
 # 定义视频编码器和创建 VideoWriter 对象
 height, width, layers = first_image.shape
-fourcc = cv2.VideoWriter_fourcc(*'X264')
+fourcc = cv2.VideoWriter_fourcc(*'avc1')
 video = cv2.VideoWriter(video_name, fourcc, fps, (width, height))
 
 # 读取图片并添加到视频

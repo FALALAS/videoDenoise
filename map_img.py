@@ -39,7 +39,7 @@ for i in range(1, num_images):
 
     # 应用去噪算法
     denoised_frame = np.zeros((prev_frame.shape[0], prev_frame.shape[1], prev_frame.shape[2]), dtype=np.uint8)
-
+    '''
     for x in range(0, prev_frame.shape[0], win_size):
         for y in range(0, prev_frame.shape[1], win_size):
             for c in range(0, prev_frame.shape[2]):
@@ -53,6 +53,23 @@ for i in range(1, num_images):
 
                 varx = (diff / win_area) / (25 + diff / win_area)
                 lam = 1 - varx
+                for i in range(0, win_size):
+                    for j in range(0, win_size):
+                        factor1 = np.float64(current_frame[x + i, y + j, c]) / (1 + lam)
+                        factor2 = np.float64(prev_frame[x + i, y + j, c]) * lam / (1 + lam)
+                        denoised_frame[x + i, y + j, c] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
+    '''
+    for x in range(0, prev_frame.shape[0], win_size):
+        for y in range(0, prev_frame.shape[1], win_size):
+            for c in range(0, prev_frame.shape[2]):
+                varx = np.float64(0)
+                for i in range(0, win_size):
+                    for j in range(0, win_size):
+                        diff = np.float64(current_frame[x + i, y + j, c]) - np.float64(prev_frame[x + i, y + j, c])
+                        diff = diff ** 2
+                        varx += diff
+                varx=varx/win_area
+                lam = varn / varx
                 for i in range(0, win_size):
                     for j in range(0, win_size):
                         factor1 = np.float64(current_frame[x + i, y + j, c]) / (1 + lam)
