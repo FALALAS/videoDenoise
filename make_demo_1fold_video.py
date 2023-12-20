@@ -5,8 +5,8 @@ from tqdm import tqdm
 
 def get_args():
     args = argparse.ArgumentParser()
-    args.add_argument('--lr_dir', type=str, default=r"D:\videoDenoise\noised000var25")
-    args.add_argument('--rec_dir', type=str, default=r"D:\videoDenoise\0001clean")
+    args.add_argument('--lr_dir', type=str, default=r"D:\videoDenoise\noised000var50")
+    args.add_argument('--rec_dir', type=str, default=r"D:\videoDenoise\0001clean_img")
     args.add_argument('--save_path', type=str, default=r"D:\videoDenoise")
     args.add_argument('--fps', type=int, default=5)
     args.add_argument('--img_height', type=int, default=720)
@@ -29,8 +29,8 @@ def main(args):
     num_frames = len(lr_list)
     v_pixel = args.img_width // num_frames
     direction, border = 1, 0
-    fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-    video = cv2.VideoWriter(os.path.join(args.save_path,'result.avi'), fourcc, args.fps, (args.img_width, args.img_height))
+    fourcc = cv2.VideoWriter_fourcc(*'avc1')
+    video = cv2.VideoWriter(os.path.join(args.save_path,'result.mp4'), fourcc, args.fps, (args.img_width, args.img_height))
     for lr_file, rec_file in tqdm(zip(lr_list, rec_list)):            
         lr = cv2.imread(os.path.join(lr_path, lr_file))
         rec = cv2.imread(os.path.join(rec_path, rec_file))
