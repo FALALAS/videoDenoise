@@ -7,8 +7,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var100'
-output_folder = '0001clean_img_var100'
+noised_folder = 'noised000var200'
+output_folder = '0001clean_img_var200'
 
 # 第一帧是干净的
 clean_path = os.path.join(clean_folder, '00000000.png')
@@ -20,9 +20,9 @@ cv2.imwrite(output_path, denoised_frame)
 # 参数
 num_images = 100
 frame_number = 0
-win_size = 2
+win_size = 10
 win_area = win_size * win_size
-varn = 100
+varn = 200
 
 # 遍历图片文件
 for i in range(1, num_images):

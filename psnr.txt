@@ -1,12 +1,22 @@
+000 noised000var200 psnr:25.336232350391548
+win_size:2
+000 0001clean_img psnr:
+win_size:5
+000 0001clean_img psnr:26.893257452911225
+win_size:10
+000 0001clean_img psnr:
+win_size:20
+000 0001clean_img psnr:
+
 000 noised000var100 psnr:28.267805847443757
 win_size:2
 000 0001clean_img psnr:29.313668791163707
 win_size:5
 000 0001clean_img psnr:29.458831852882884
 win_size:10
-000 0001clean_img psnr:
+000 0001clean_img psnr:29.378083499639104
 win_size:20
-000 0001clean_img psnr:
+000 0001clean_img psnr:29.260375775131628
 
 
 000 noised000var50 psnr:31.218531509115106
