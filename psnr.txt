@@ -9,6 +9,7 @@ win_size:20
 000 0001clean_img psnr:
 
 000 noised000var100 psnr:28.267805847443757
+000 000_bm3d_var100 psnr:35.67779209670818
 win_size:2
 000 0001clean_img psnr:29.313668791163707
 win_size:5
@@ -20,6 +21,7 @@ win_size:20
 
 
 000 noised000var50 psnr:31.218531509115106
+000 000_bm3d_var50 psnr:37.61017659938795
 win_size:2
 000 0001clean_img psnr:31.97464726279436
 win_size:5
