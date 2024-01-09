@@ -76,15 +76,7 @@ def laplacian_pyramid_fusion(pyramid1, pyramid2):
     return fused_frame
 
 
-def process_channel(channel, prev_channel, levels):
-    channel_pyramid = align(channel, prev_channel, levels)
-    if prev_output_pyramid is not None:
-        channel_laplacian_pyramid = build_laplacian_pyramid(channel_pyramid)
-        prev_laplacian_pyramid = build_laplacian_pyramid(prev_output_pyramid)
-        fused_channel = laplacian_pyramid_fusion(channel_laplacian_pyramid, prev_laplacian_pyramid)
-    else:
-        fused_channel = channel
-    return fused_channel
+
 
 
 noised_folder = "noised000var100"  # 指定文件夹路径
@@ -114,13 +106,13 @@ for i in range(num_images):
         aligned_pyramid = align(channel, prev_channels[channel_idx], levels)
         if prev_output_pyramid[channel_idx] is not None:
             aligned_laplacian_pyramid = build_laplacian_pyramid(aligned_pyramid)
-            prev_laplacian_pyramid = build_laplacian_pyramid(prev_output_pyramid)
+            prev_laplacian_pyramid = build_laplacian_pyramid(prev_output_pyramid[channel_idx])
             fused_channel = laplacian_pyramid_fusion(aligned_laplacian_pyramid, prev_laplacian_pyramid)
         else:
             fused_channel = channel
 
         prev_channels[channel_idx] = channel
-        prev_output_pyramid = build_gaussian_pyramid(channel, levels)
+        prev_output_pyramid[channel_idx] = build_gaussian_pyramid(channel, levels)
         fused_channels.append(fused_channel)
 
     fused_frame = cv2.merge(fused_channels)
