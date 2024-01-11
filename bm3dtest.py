@@ -29,7 +29,7 @@ for i in range(0, num_images):
         continue
 
     # 应用去噪算法
-    denoised_frame = bm3d_rgb(current_frame, varn ** 0.5)
+    denoised_frame = bm3d_rgb(current_frame, -1)
     denoised_frame = np.clip(denoised_frame, 0, 255).astype(np.uint8)
 
     output_path = os.path.join(output_folder, filename)

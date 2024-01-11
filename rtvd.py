@@ -76,11 +76,8 @@ def laplacian_pyramid_fusion(pyramid1, pyramid2):
     return fused_frame
 
 
-
-
-
 noised_folder = "noised000var100"  # 指定文件夹路径
-output_folder = "rtvdvar100"
+output_folder = "000_rtvd_var100"
 os.makedirs(output_folder, exist_ok=True)
 
 prev_frame = None
