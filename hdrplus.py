@@ -27,9 +27,9 @@ def load_jpeg_images(image_paths):
 start_time = time.time()
 
 # 文件夹路径
-clean_folder = '000'
-noised_folder = 'noised000var100'
-output_folder = '0001clean_hdr+_var100'
+clean_folder = '001'
+noised_folder = '001'
+output_folder = '001_hdr+'
 
 # 第一帧是干净的
 clean_path = os.path.join(clean_folder, '00000000.png')
@@ -37,6 +37,7 @@ prev_frame = torchvision.io.read_image(clean_path)
 denoised_frame = prev_frame
 output_path = os.path.join(output_folder, '00000000.png')
 output_frame = np.transpose(denoised_frame.numpy(), (1, 2, 0))
+output_frame = cv2.cvtColor(output_frame, cv2.COLOR_BGR2RGB)
 cv2.imwrite(output_path, output_frame)
 
 prev_frame = prev_frame.float() / 255
@@ -46,7 +47,7 @@ num_images = 100
 frame_number = 0
 varn = 100
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda")
 # 遍历图片文件
 for i in range(1, num_images):
     # 构造文件名
@@ -60,13 +61,16 @@ for i in range(1, num_images):
     if current_frame is None:
         print(f"无法读取图像文件 {filename}")
         continue
+
     images = [prev_frame, current_frame]
     images = torch.stack(images)
     # 应用去噪算法
     denoised_frame = align.align_and_merge(images, device=device)
-    output_frame = np.transpose(denoised_frame.numpy(), (1, 2, 0))
 
+    output_frame = np.transpose(denoised_frame.numpy(), (1, 2, 0))
     output_path = os.path.join(output_folder, filename)
+    output_frame = cv2.cvtColor(output_frame, cv2.COLOR_BGR2RGB)
+    output_frame = output_frame * 255
     cv2.imwrite(output_path, output_frame)
     prev_frame = denoised_frame
     # 显示帧

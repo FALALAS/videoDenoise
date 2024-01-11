@@ -117,7 +117,7 @@ def align_and_merge(images: Tensor,
                     device: torch.device = torch.device('cpu'),
                     min_layer_res: int = 64,
                     tile_size: int = 16,
-                    search_dist: int = 2,
+                    search_dist: int = 10,
                    ) -> Tensor:
     """
     Align and merge a burst of images. The input and output tensors are assumed to be on CPU device, to reduce GPU memory requirements.
@@ -128,6 +128,7 @@ def align_and_merge(images: Tensor,
         device: the PyTorch device to use (either 'cpu' or 'cuda')
         min_layer_res: size of the smallest pyramid layer
         tile_size: size of tiles in each pyramid layer
+        search_dist: search distance for the Lucas-Kanade optical flow
     """
         
     # check the shape of the burst
