@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\videoDenoise\meshFlowVD\CMakeFiles\881c5268de27bda2c4afdc6992c7190c\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{848052BB-C682-3AA2-B2B7-A8F27AF92791}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

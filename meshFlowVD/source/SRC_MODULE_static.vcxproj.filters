@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\MeshFlow_Video_Denoising_OpenCV310\source\Fast_klt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\MeshFlow_Video_Denoising_OpenCV310\source\Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\MeshFlow_Video_Denoising_OpenCV310\source\MeshFlow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\MeshFlow_Video_Denoising_OpenCV310\source\MotionDenoiser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\MeshFlow_Video_Denoising_OpenCV310\source\VideoIO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\MeshFlow_Video_Denoising_OpenCV310\source\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{A407499B-48B8-3812-977F-7DE2EE1F172A}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
