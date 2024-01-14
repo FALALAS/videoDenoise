@@ -7,8 +7,8 @@ from bm3d import bm3d_rgb
 start_time = time.time()
 
 # 文件夹路径
-noised_folder = '001'
-output_folder = '001_bm3d'
+noised_folder = 'noised000var100'
+output_folder = '000_bm3d_var100_est'
 os.makedirs(output_folder, exist_ok=True)
 
 # 参数
@@ -16,7 +16,7 @@ num_images = 100
 varn = 100
 
 # 遍历图片文件
-for i in range(0, num_images):
+for i in range(1, num_images - 1):
     # 构造文件名
     filename = f'{i:08d}.png'
 
