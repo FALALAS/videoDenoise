@@ -28,7 +28,7 @@ folder1 = '000'  # Replace with the path to your '000' folder
 # folder2 = '0001clean'
 # folder2 = 'rtvdvar100'
 # folder2 = '001'
-folder2 = '000_vbm4d_var100'
+folder2 = '000_vbm4d_var100_est'
 # folder2 = '0001clean_hdr+_var100'
 # folder2 = '000_cv2_var100_multi'
 
