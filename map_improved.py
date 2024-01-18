@@ -4,7 +4,7 @@ import time
 
 start_time = time.time()
 # 读取视频
-cap1 = cv2.VideoCapture('output_video000.avi')
+cap1 = cv2.VideoCapture('tools/output_video000.avi')
 cap = cv2.VideoCapture('output_videonoised000.avi')
 
 # 视频编码器和视频输出
