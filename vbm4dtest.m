@@ -31,7 +31,7 @@ end
 % Modifiable parameters
 sigma = -1;      % Noise standard deviation. it should be in the same
 % intensity range of the video
-profile = 'np';      % V-BM4D parameter profile
+profile = 'lc';      % V-BM4D parameter profile
 %  'lc' --> low complexity
 %  'np' --> normal profile
 do_wiener = 1;       % Wiener filtering
