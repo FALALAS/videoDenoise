@@ -1,16 +1,18 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import config as cfg
+
 from utils_pyramid import _get_pyramid_gaussian_kernel
 
 C_all = 4
-device = cfg.device
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 def space_to_depth(in_tensor, down_scale):
     n, c, h, w = in_tensor.size()
     unfolded_x = F.unfold(in_tensor, down_scale, stride=down_scale)
     return unfolded_x.view(n, c * down_scale ** 2, h // down_scale, w // down_scale)
+
 
 class pyrdown(torch.nn.Module):
     def __init__(self, channels):
@@ -32,6 +34,7 @@ class pyrdown(torch.nn.Module):
         out = 5 * 5 * c * h * w
         return out
 
+
 class pyrup(torch.nn.Module):
     def __init__(self, channels):
         super(pyrup, self).__init__()
@@ -49,6 +52,7 @@ class pyrup(torch.nn.Module):
     def flops(self, c, h, w):
         out = 5 * 5 * c * (h * 2) * (w * 2)
         return out
+
 
 class gauss_pyramid(torch.nn.Module):
     def __init__(self, scale):
@@ -117,8 +121,8 @@ class Pyramid_Collapse(torch.nn.Module):
         scale = len(Gc)
         scale_l = len(Lr)
 
-        expand = self.pyrups[0](F.pixel_shuffle(Gc[scale - 1], 2)) # 4
-        denoised_Gc.append(expand + F.pixel_shuffle(Lr[scale_l - 1], 2)) # 4
+        expand = self.pyrups[0](F.pixel_shuffle(Gc[scale - 1], 2))  # 4
+        denoised_Gc.append(expand + F.pixel_shuffle(Lr[scale_l - 1], 2))  # 4
         for l in range(1, scale - 1):
             expand = self.pyrups[l](denoised_Gc[l - 1])
             denoised_Gc.append(expand + F.pixel_shuffle(Lr[scale_l - 1 - l], 2))
@@ -138,7 +142,8 @@ class Pyramid_Collapse(torch.nn.Module):
 class Depthwise_separable_conv(nn.Module):
     def __init__(self, channels, channels_out, kernel_size=3, padding=1, bias=False):
         super(Depthwise_separable_conv, self).__init__()
-        self.depthwise = nn.Conv2d(channels, channels, kernel_size=kernel_size, padding=padding, groups=channels, bias=bias)
+        self.depthwise = nn.Conv2d(channels, channels, kernel_size=kernel_size, padding=padding, groups=channels,
+                                   bias=bias)
         self.pointwise = nn.Conv2d(channels, channels_out, kernel_size=1, bias=bias)
 
     def forward(self, x):
@@ -149,6 +154,7 @@ class Depthwise_separable_conv(nn.Module):
     def flops(self, h, w, c_in, c_out):
         out = c_in * 3 * 3 * h * w + c_in * 1 * 1 * c_out * h * w
         return out
+
 
 class Fusion_down(nn.Module):
     def __init__(self):
@@ -169,6 +175,7 @@ class Fusion_down(nn.Module):
         out += (16 * 1 * 1 + 1) * 1 * h * w
         return out
 
+
 class Fusion_up(nn.Module):
     def __init__(self):
         super(Fusion_up, self).__init__()
@@ -187,6 +194,7 @@ class Fusion_up(nn.Module):
         out += self.net2.flops(h, w, 16, 16)
         out += (16 * 1 * 1 + 1) * 1 * h * w
         return out
+
 
 class Denoise_down(nn.Module):
     def __init__(self):
@@ -207,6 +215,7 @@ class Denoise_down(nn.Module):
         out += (16 * 3 * 3 + 1) * 16 * h * w
         return out
 
+
 class Denoise_up(nn.Module):
     def __init__(self):
         super(Denoise_up, self).__init__()
@@ -225,6 +234,7 @@ class Denoise_up(nn.Module):
         out += (16 * 3 * 3 + 1) * 16 * h * w
         out += (16 * 3 * 3 + 1) * 16 * h * w
         return out
+
 
 class Refine(nn.Module):
     def __init__(self):
@@ -245,21 +255,22 @@ class Refine(nn.Module):
         out += (16 * 1 * 1 + 1) * 1 * h * w
         return out
 
+
 class globalAttention(nn.Module):
-    def __init__(self, num_feat=16, patch_size=4, heads=1):  #todo num_feat=64-->16, patch_size=8-->4
+    def __init__(self, num_feat=16, patch_size=4, heads=1):  # todo num_feat=64-->16, patch_size=8-->4
         super(globalAttention, self).__init__()
         self.heads = heads
-        self.patch_size =patch_size
-        self.dim = patch_size ** 2 * num_feat   #16*16
-        self.hidden_dim = self.dim // heads     #16*16
+        self.patch_size = patch_size
+        self.dim = patch_size ** 2 * num_feat  # 16*16
+        self.hidden_dim = self.dim // heads  # 16*16
 
         self.feat2patch = torch.nn.Unfold(kernel_size=patch_size, padding=0, stride=patch_size)
 
     def forward(self, m_in, m_out, q_in):
-        b, t, c, h, w = m_in.shape                          # B, 2 ,16,68,120
-        H, D = self.heads, self.dim                      #1,16*16
+        b, t, c, h, w = m_in.shape  # B, 2 ,16,68,120
+        H, D = self.heads, self.dim  # 1,16*16
         num_patch = (h // self.patch_size) * (w // self.patch_size)
-        n, d = num_patch, self.hidden_dim           #17*30 ,16*16
+        n, d = num_patch, self.hidden_dim  # 17*30 ,16*16
 
         q = q_in.unsqueeze(dim=1).view(-1, c, h, w)
         k = m_in.view(-1, c, h, w)
@@ -303,6 +314,7 @@ class globalAttention(nn.Module):
         out = 2 * d * n * (t * n)
         return out
 
+
 class VideoDenoise(nn.Module):
     def __init__(self):
         super(VideoDenoise, self).__init__()
@@ -315,8 +327,8 @@ class VideoDenoise(nn.Module):
         self.reduce_dim = nn.Conv2d(32, 16, kernel_size=3, padding=1)
 
     def forward(self, gp_ft0, lp_ft0, gp_ft1, lp_ft1, gp_pres, lp_pres, coeff_a, coeff_b):
-        ll0 = gp_ft0 # ft0[:, 0:4, :, :]
-        ll1 = gp_ft1 # ft1[:, 0:4, :, :]
+        ll0 = gp_ft0  # ft0[:, 0:4, :, :]
+        ll1 = gp_ft1  # ft1[:, 0:4, :, :]
 
         lp_ft1_s = self.Memory(gp_pres, lp_pres, gp_ft1)
         lp_ft1_m = self.reduce_dim(torch.cat([lp_ft1, lp_ft1_s], dim=1))
@@ -335,7 +347,7 @@ class VideoDenoise(nn.Module):
 
         # refine
         refine_in = torch.cat([fusion_out, denoise_out], axis=1)  # 1 * 33 * 64 * 64
-        filters2 = self.refine(refine_in) # 1 * 1 * 64 * 64
+        filters2 = self.refine(refine_in)  # 1 * 1 * 64 * 64
         refine_out = torch.mul(denoise_out, (1 - filters2)) + torch.mul(fusion_out, filters2)
         return filters, fusion_out, denoise_out, refine_out, filters2
 
@@ -357,8 +369,8 @@ class MultiVideoDenoise(nn.Module):
         self.reduce_dim = nn.Conv2d(32, 16, kernel_size=3, padding=1)
 
     def forward(self, gp_ft0, lp_ft0, gp_ft1, lp_ft1, gp_pres, lp_pres, gamma_up, denoise_down, coeff_a, coeff_b):
-        ll0 = gp_ft0 # ft0[:, 0:4, :, :]
-        ll1 = gp_ft1 # ft1[:, 0:4, :, :]
+        ll0 = gp_ft0  # ft0[:, 0:4, :, :]
+        ll1 = gp_ft1  # ft1[:, 0:4, :, :]
 
         lp_ft1_s = self.Memory(gp_pres, lp_pres, gp_ft1)
         lp_ft1_m = self.reduce_dim(torch.cat([lp_ft1, lp_ft1_s], dim=1))
@@ -377,7 +389,7 @@ class MultiVideoDenoise(nn.Module):
 
         # refine
         refine_in = torch.cat([fusion_out, denoise_out], axis=1)  # 1 * 33 * 64 * 64
-        filters2 = self.refine(refine_in) # 1 * 1 * 64 * 64
+        filters2 = self.refine(refine_in)  # 1 * 1 * 64 * 64
         refine_out = torch.mul(denoise_out, (1 - filters2)) + torch.mul(fusion_out, filters2)
         return filters, fusion_out, denoise_out, refine_out, filters2, lp_ft1_s
 
@@ -398,11 +410,11 @@ class MultiVideoDenoise0(nn.Module):
         self.reduce_dim = nn.Conv2d(20, 16, kernel_size=1, padding=0)
 
     def forward(self, gp_ft0, lp_ft0, gp_ft1, lp_ft1, lp_ft1_s, gamma_up, denoise_down, coeff_a, coeff_b):
-        ll0 = gp_ft0 # ft0[:, 0:4, :, :]
-        ll1 = gp_ft1 # ft1[:, 0:4, :, :]
+        ll0 = gp_ft0  # ft0[:, 0:4, :, :]
+        ll1 = gp_ft1  # ft1[:, 0:4, :, :]
 
         lp_ft1_m = self.reduce_dim(torch.cat([lp_ft1, lp_ft1_s], dim=1))
-        
+
         # fusion
         sigma_ll1 = torch.mean(ll1, dim=1, keepdim=True) * coeff_a + coeff_b
         fusion_in = torch.cat([abs(ll1 - ll0), gamma_up, sigma_ll1], dim=1)
@@ -417,7 +429,7 @@ class MultiVideoDenoise0(nn.Module):
 
         # refine
         refine_in = torch.cat([fusion_out, denoise_out], axis=1)  # 1 * 33 * 64 * 64
-        filters2 = self.refine(refine_in) # 1 * 1 * 64 * 64
+        filters2 = self.refine(refine_in)  # 1 * 1 * 64 * 64
         refine_out = torch.mul(denoise_out, (1 - filters2)) + torch.mul(fusion_out, filters2)
         return filters, fusion_out, denoise_out, refine_out, filters2
 
@@ -425,6 +437,7 @@ class MultiVideoDenoise0(nn.Module):
         out = self.fusion.flops(h, w) + self.denoise.flops(h, w) + self.refine.flops(h, w)
         out += (20 * 1 * 1 + 1) * 16 * h * w
         return out
+
 
 class MainDenoise(nn.Module):
     def __init__(self, scale=4):
@@ -485,7 +498,7 @@ class MainDenoise(nn.Module):
         denoise_up_d1 = F.pixel_shuffle(denoise_out, 2)  # [1, 4, 64, 64]
         filters_up_d1 = F.upsample(filters, scale_factor=2)
 
-        filters, fusion_out, denoise_out, refine_out, filters2,  = \
+        filters, fusion_out, denoise_out, refine_out, filters2, = \
             self.md0(gp_t0[0], lp_t0[0], gp_t1[0], lp_t1[0],
                      F.pixel_shuffle(lp_ft1_s, 2),
                      filters_up_d1, denoise_up_d1, coeff_a, coeff_b)
@@ -500,19 +513,21 @@ class MainDenoise(nn.Module):
         lp_t1_denoise = lp_t1_denoise[::-1]
         lp_t1_refine = lp_t1_refine[::-1]
 
-        fusion_out = self.Pyramid_Collapse(gp_t1, lp_t1_fusion)     # [1, 4, 128, 128]
+        fusion_out = self.Pyramid_Collapse(gp_t1, lp_t1_fusion)  # [1, 4, 128, 128]
         denoise_out = self.Pyramid_Collapse(gp_t1, lp_t1_denoise)
         refine_out = self.Pyramid_Collapse(gp_t1, lp_t1_refine)
         return filters, fusion_out, denoise_out, filters2, refine_out
 
     def flops(self, b, c, h, w, scale=4):
-        out = self.vd.flops(h//8, w//8) + self.md1.flops(h//4, w//4) + self.md0.flops(h//2, w//2) \
+        out = self.vd.flops(h // 8, w // 8) + self.md1.flops(h // 4, w // 4) + self.md0.flops(h // 2, w // 2) \
               + self.gauss_lapalian_pyramid.flops(c, h, w, scale) * 5 \
               + self.Pyramid_Collapse.flops(c, h, w, scale) * 2
         return out * b
 
+
 if __name__ == '__main__':
     from torch.autograd import Variable
+
     net = MainDenoise().cuda()
     # print(net)
     # input = Variable(torch.FloatTensor(1, 8, 128, 128)).cuda()
@@ -533,8 +548,7 @@ if __name__ == '__main__':
     print('Total number of parameters: %d' % num_params)
 
     from thop import profile
+
     flops, params = profile(net, inputs=(pres, input,))
     print("%.6f GFLOPs." % (flops / 1e9))
     print("%.6f Params(M)." % (params / 1e6))
-
-

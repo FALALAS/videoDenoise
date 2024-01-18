@@ -27,15 +27,21 @@ def align(current_frame, prev_frame, levels=3):
     pyramid_prev = build_gaussian_pyramid(prev_frame, levels)
 
     # 从最低分辨率开始估计光流
-    flow = cv2.DISOpticalFlow_create(2)
+    flow = cv2.DISOpticalFlow_create(0)
+    flow.setFinestScale(0)
+    flow.setPatchSize(40)
     current_level_flow = flow.calc(pyramid_prev[-1], pyramid_current[-1], None)
 
+
+    # current_level_flow = cv2.calcOpticalFlowFarneback(pyramid_prev[-1], pyramid_current[-1], None,0.5, 1, 460800,
+    # 10, 7, 1.5, 0)
+
     # 在每一层上应用光流
-    for i in range(levels - 1, -1, -1):
+    for i in range(levels, -1, -1):
         h, w = pyramid_current[i].shape[:2]
         flow_map = np.meshgrid(np.arange(w), np.arange(h))
         flow_map = np.stack(flow_map, axis=-1).astype(np.float32)  # 调整为三维数组
-        new_coords = flow_map + cv2.resize(current_level_flow, (w, h), interpolation=cv2.INTER_LINEAR)
+        new_coords = flow_map + current_level_flow
         pyramid_current[i] = cv2.remap(pyramid_current[i], new_coords, None, cv2.INTER_LINEAR)
 
         # 将当前层光流上采样到下一层
@@ -76,6 +82,7 @@ def laplacian_pyramid_fusion(pyramid1, pyramid2):
     return fused_frame
 
 
+clean_folder = "000"
 noised_folder = "noised000var100"  # 指定文件夹路径
 output_folder = "000_rtvd_var100"
 os.makedirs(output_folder, exist_ok=True)
@@ -90,11 +97,14 @@ num_images = 100  # 假设有 100 帧
 for i in range(num_images):
     filename = f'{i:08d}.png'
     noised_path = os.path.join(noised_folder, filename)
+    if i == 0:
+        noised_path = os.path.join(clean_folder, filename)
     current_frame = cv2.imread(noised_path)
     # 检查图片是否被成功加载
     if current_frame is None:
         print(f"无法读取图像文件 {filename}")
         continue
+
     # 分离通道
     channels = cv2.split(current_frame)
     fused_channels = []
@@ -109,7 +119,7 @@ for i in range(num_images):
             fused_channel = channel
 
         prev_channels[channel_idx] = channel
-        prev_output_pyramid[channel_idx] = build_gaussian_pyramid(channel, levels)
+        prev_output_pyramid[channel_idx] = aligned_pyramid
         fused_channels.append(fused_channel)
 
     fused_frame = cv2.merge(fused_channels)

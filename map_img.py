@@ -9,7 +9,7 @@ start_time = time.time()
 clean_folder = '000'
 noised_folder = 'noised000var200'
 output_folder = '0001clean_img_var200'
-
+os.makedirs(output_folder, exist_ok=True)
 # 第一帧是干净的
 clean_path = os.path.join(clean_folder, '00000000.png')
 prev_frame = cv2.imread(clean_path)
