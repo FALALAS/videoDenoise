@@ -41,7 +41,7 @@ def align(current_frame, prev_frame, levels=3):
         h, w = pyramid_current[i].shape[:2]
         flow_map = np.meshgrid(np.arange(w), np.arange(h))
         flow_map = np.stack(flow_map, axis=-1).astype(np.float32)  # 调整为三维数组
-        new_coords = flow_map + current_level_flow
+        new_coords = flow_map - current_level_flow
         pyramid_current[i] = cv2.remap(pyramid_current[i], new_coords, None, cv2.INTER_LINEAR)
 
         # 将当前层光流上采样到下一层

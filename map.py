@@ -49,6 +49,27 @@ while cap.isOpened():
                         factor2 = np.float64(prev_frame[x + i, y + j, c]) * lam / (1 + lam)
                         denoised_frame[x + i, y + j, c] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
 
+    '''
+        for x in range(0, prev_frame.shape[0], win_size):
+        for y in range(0, prev_frame.shape[1], win_size):
+            for c in range(0, prev_frame.shape[2]):
+                varx = np.float64(0)
+                diff = np.float64(0)
+                for i in range(0, win_size):
+                    for j in range(0, win_size):
+                        yn = np.float64(current_frame[x + i, y + j, c])
+                        xn_1 = np.float64(prev_frame[x + i, y + j, c])
+                        diff += yn**2+xn_1**2+2*yn*xn_1
+
+                varx = (diff / win_area) / (25 + diff / win_area)
+                lam = 1-varx
+                for i in range(0, win_size):
+                    for j in range(0, win_size):
+                        factor1 = np.float64(current_frame[x + i, y + j, c]) / (1 + lam)
+                        factor2 = np.float64(prev_frame[x + i, y + j, c]) * lam / (1 + lam)
+                        denoised_frame[x + i, y + j, c] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
+    '''
+
     # 写入处理后的帧
     out.write(denoised_frame)
     prev_frame = denoised_frame
