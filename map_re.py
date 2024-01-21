@@ -60,9 +60,5 @@ for i in range(1, num_images):
     elapsed_time = current_time - start_time  # 计算经过的时间
     frame_number += 1
     print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒")
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
 
-# 释放资源
 
-cv2.destroyAllWindows()
