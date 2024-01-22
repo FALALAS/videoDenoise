@@ -7,8 +7,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var100'
-output_folder = '0001clean_re_var100'
+noised_folder = 'noised000var625'
+output_folder = '0001clean_add_var625'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -23,7 +23,7 @@ cv2.imwrite(output_path, denoised_frame)
 num_images = 100
 frame_number = 0
 
-varn = 100
+varn = 625
 
 h = prev_frame.shape[0]
 w = prev_frame.shape[1]

@@ -7,16 +7,16 @@ from bm3d import bm3d_rgb
 start_time = time.time()
 
 # 文件夹路径
-noised_folder = 'noised000var2500'
-output_folder = '000_bm3d_var2500'
+noised_folder = 'noised000var625'
+output_folder = '000_bm3d_var625'
 os.makedirs(output_folder, exist_ok=True)
 
 # 参数
 num_images = 100
-varn = 2500
+varn = 625
 
 # 遍历图片文件
-for i in range(1, num_images - 1):
+for i in range(0, num_images):
     # 构造文件名
     filename = f'{i:08d}.png'
 
@@ -34,16 +34,8 @@ for i in range(1, num_images - 1):
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
-    # 显示帧
-    cv2.imshow('frame', denoised_frame)
+
     current_time = time.time()  # 获取当前时间
     elapsed_time = current_time - start_time  # 计算经过的时间
 
     print(f"已处理到第 {i} 帧，用时 {elapsed_time:.2f} 秒")
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-# 释放资源
-
-cv2.destroyAllWindows()

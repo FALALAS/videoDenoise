@@ -7,13 +7,13 @@ import numpy as np
 start_time = time.time()
 
 # 文件夹路径
-noised_folder = 'noised000var100'
-output_folder = '000_cv2_var100_bilateralFilter'
+noised_folder = 'noised000var625'
+output_folder = '000_cv2_var625_NlM'
 os.makedirs(output_folder, exist_ok=True)
 
 # 参数
 num_images = 100
-varn = 100
+varn = 625
 
 # 遍历图片文件
 for i in range(0, num_images):
@@ -30,10 +30,8 @@ for i in range(0, num_images):
 
     # 应用去噪算法
 
-    # denoised_frame = cv2.fastNlMeansDenoisingColored(current_frame, None, 4, 4, 7, 21)
-    # cv2.denoise_TVL1(current_frame, denoised_frame, 1, 30)
-    # denoised_frame = denoise_bilateral(current_frame, channel_axis=2)
-    denoised_frame=cv2.bilateralFilter(current_frame, 10, 30, 30)
+    denoised_frame = cv2.fastNlMeansDenoisingColored(current_frame, None, 5, 5, 7, 21)
+    # denoised_frame = cv2.bilateralFilter(current_frame, 10, 80, 80)
     denoised_frame = np.clip(denoised_frame, 0, 255).astype(np.uint8)
 
     output_path = os.path.join(output_folder, filename)
