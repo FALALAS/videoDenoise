@@ -22,11 +22,11 @@ cv2.imwrite(output_path, denoised_frame)
 # 参数
 num_images = 100
 frame_number = 0
-win_size = 5
+win_size = 10
 win_area = win_size * win_size
 varn = 100
-wc = 0.5
-wp = 0.5
+wc = 0.11
+wp = 0.891583452211127
 
 h = prev_frame.shape[0]
 w = prev_frame.shape[1]

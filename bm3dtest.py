@@ -7,13 +7,13 @@ from bm3d import bm3d_rgb
 start_time = time.time()
 
 # 文件夹路径
-noised_folder = 'noised000var100'
-output_folder = '000_bm3d_var100_est'
+noised_folder = 'noised000var2500'
+output_folder = '000_bm3d_var2500'
 os.makedirs(output_folder, exist_ok=True)
 
 # 参数
 num_images = 100
-varn = 100
+varn = 2500
 
 # 遍历图片文件
 for i in range(1, num_images - 1):
@@ -29,7 +29,7 @@ for i in range(1, num_images - 1):
         continue
 
     # 应用去噪算法
-    denoised_frame = bm3d_rgb(current_frame, -1)
+    denoised_frame = bm3d_rgb(current_frame, varn**0.5)
     denoised_frame = np.clip(denoised_frame, 0, 255).astype(np.uint8)
 
     output_path = os.path.join(output_folder, filename)

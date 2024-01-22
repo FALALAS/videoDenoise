@@ -70,7 +70,7 @@ for i in range(1, num_images):
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
-    prev_denoised_frame = cv2.fastNlMeansDenoisingColored(current_frame, None, 5, 5, 7, 21)
+    prev_denoised_frame = cv2.fastNlMeansDenoisingColored(current_frame, None, 4, 4, 7, 21)
     prev_frame = current_frame
 
     current_time = time.time()  # 获取当前时间

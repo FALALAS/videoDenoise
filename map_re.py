@@ -49,7 +49,7 @@ for i in range(1, num_images):
 
     aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC)
     # 应用去噪算法
-    denoised_frame = cv2.addWeighted(current_frame, 0.5, aligned_frame, 0.5, 0)
+    denoised_frame = cv2.addWeighted(current_frame, 0.455, aligned_frame, 0.55, 0)
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)

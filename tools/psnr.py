@@ -1,6 +1,8 @@
+import cv2
 from PIL import Image
 import numpy as np
 import os
+from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 
 
 def calculate_psnr(img1, img2):
@@ -24,13 +26,14 @@ def calculate_psnr(img1, img2):
 # Directories of the image folders
 folder1 = '../000'  # Replace with the path to your '000' folder
 # folder2 = '000_bm3d_var100_est'
-# folder2 = 'noised000var200'
+folder2 = '../noised000var625'
 # folder2 = '../0001clean_img_var100'
-folder2 = '../0001clean_gray_var100'
+# folder2 = '../0001clean_gray_var100'
+# folder2 = '../0001clean_rtvdLiao_var100'
 # folder2 = '001'
 # folder2 = '000_vbm4d_var100_est'
 # folder2 = '0001clean_rtvdLiao_var100'
-# folder2 = '000_cv2_var100_multi'
+# folder2 = '../000_cv2_var100_bilateralFilter'
 
 # List of PSNR values
 psnr_values = []
@@ -40,11 +43,11 @@ for i in range(1, 100):
     filename = f'{i:08d}.png'  # Format the filename (e.g., 0000000.png)
 
     # Load the corresponding images from both folders
-    img1 = Image.open(os.path.join(folder1, filename))
-    img2 = Image.open(os.path.join(folder2, filename))
+    img1 = cv2.imread(os.path.join(folder1, filename))
+    img2 = cv2.imread(os.path.join(folder2, filename))
 
     # Calculate PSNR
-    psnr = calculate_psnr(img1, img2)
+    psnr = compare_psnr(img1, img2)
     psnr_values.append(psnr)
 
 # Calculate the average PSNR
