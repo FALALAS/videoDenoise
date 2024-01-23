@@ -49,11 +49,11 @@ for i in range(1, num_images):
 
     aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC)
     # 应用去噪算法
-    denoised_frame = cv2.addWeighted(current_frame, 0.455, aligned_frame, 0.55, 0)
+    denoised_frame = cv2.addWeighted(current_frame, 0.21, aligned_frame, 0.81, 0)
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
-    prev_denoised_frame = denoised_frame
+    prev_denoised_frame = denoised_frame = cv2.bilateralFilter(current_frame, 10, 80, 80)
     prev_frame = current_frame
 
     current_time = time.time()  # 获取当前时间
