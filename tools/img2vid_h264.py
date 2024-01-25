@@ -2,14 +2,14 @@ import cv2
 import os
 
 # 图片文件夹路径
-image_folder = '000_vbm4d_var100_est'  # 图片文件夹名
-video_name = 'output_videobm4d.mp4'
+image_folder = '../000'  # 图片文件夹名
+video_name = 'output_videob.mp4'
 
 # 视频的帧率
 fps = 30
 
 # 获取文件夹中的第一个图像文件，以确定视频的分辨率
-first_image = cv2.imread(os.path.join(image_folder, '00000001.png'))
+first_image = cv2.imread(os.path.join(image_folder, '00000000.png'))
 
 # 如果未能读取第一张图片，打印错误信息并退出
 if first_image is None:
