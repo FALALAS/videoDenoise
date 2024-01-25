@@ -7,13 +7,13 @@ from bm3d import bm3d_rgb
 start_time = time.time()
 
 # 文件夹路径
-noised_folder = 'noised000var625'
-output_folder = '000_bm3d_var625'
+noised_folder = 'noised000var2500'
+output_folder = '000_bm3d_var2500'
 os.makedirs(output_folder, exist_ok=True)
 
 # 参数
 num_images = 100
-varn = 625
+varn = 2500
 
 # 遍历图片文件
 for i in range(0, num_images):
@@ -22,11 +22,6 @@ for i in range(0, num_images):
 
     noised_path = os.path.join(noised_folder, filename)
     current_frame = np.array(cv2.imread(noised_path), dtype=np.float64)
-
-    # 检查图片是否被成功加载
-    if current_frame is None:
-        print(f"无法读取图像文件 {filename}")
-        continue
 
     # 应用去噪算法
     denoised_frame = bm3d_rgb(current_frame, varn**0.5)

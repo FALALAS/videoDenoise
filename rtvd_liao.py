@@ -7,8 +7,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var625'
-output_folder = '0001clean_rtvdLiao_var625'
+noised_folder = 'noised000var2500'
+output_folder = '0001clean_rtvdLiao_var2500'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -24,7 +24,7 @@ num_images = 100
 frame_number = 0
 win_size = 10
 win_area = win_size * win_size
-varn = 625
+varn = 2500
 wc = 0.25
 wp = 0.7561436672967864
 
@@ -64,14 +64,10 @@ for i in range(1, num_images):
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
-    prev_denoised_frame = cv2.bilateralFilter(current_frame, 10, 80, 80)
+    prev_denoised_frame = cv2.bilateralFilter(current_frame, 10, 180, 180)
     prev_frame = current_frame
 
     current_time = time.time()  # 获取当前时间
     elapsed_time = current_time - start_time  # 计算经过的时间
     frame_number += 1
     print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒")
-
-# 释放资源
-
-cv2.destroyAllWindows()

@@ -7,8 +7,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var100'
-output_folder = '0001clean_gray_var100'
+noised_folder = 'noised000var2500'
+output_folder = '0001clean_gray_var2500'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -22,16 +22,14 @@ cv2.imwrite(output_path, denoised_frame)
 # 参数
 num_images = 100
 frame_number = 0
-win_size = 10
+win_size = 5
 win_area = win_size * win_size
-varn = 100
+varn = 2500
 
 h = prev_frame.shape[0]
 w = prev_frame.shape[1]
 flow_map = np.meshgrid(np.arange(w), np.arange(h))
 flow_map = np.stack(flow_map, axis=-1).astype(np.float32)  # 调整为三维数组
-
-lams = []
 
 # 遍历图片文件
 for i in range(1, num_images):
@@ -39,17 +37,21 @@ for i in range(1, num_images):
     filename = f'{i:08d}.png'
     noised_path = os.path.join(noised_folder, filename)
     current_frame = cv2.imread(noised_path)
-    '''
-    flow = cv2.optflow.DenseRLOFOpticalFlow_create()
-    current_flow = flow.calc(prev_frame, current_frame, None)
-    '''
+
     current_frame_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
     prev_frame_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
     flow = cv2.DISOpticalFlow_create(2)
+    flow.setFinestScale(0)
     current_flow = flow.calc(prev_frame_gray, current_frame_gray, None)
+
+    '''
+    flow = cv2.optflow.DenseRLOFOpticalFlow_create()
+    current_flow = flow.calc(prev_denoised_frame, current_frame, None)
+    '''
 
     new_coords = flow_map - current_flow
     aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC)
+    cv2.imwrite(os.path.join('test', filename), aligned_frame)
     aligned_frame_gray = cv2.cvtColor(aligned_frame, cv2.COLOR_BGR2GRAY)
 
     # 应用去噪算法
@@ -64,7 +66,6 @@ for i in range(1, num_images):
                     varx += diff
             varx = varx / win_area
             lam = varn / varx
-            lams.append(lam)
             for i in range(0, win_size):
                 for j in range(0, win_size):
                     factor1 = np.float64(current_frame[x + i, y + j]) / (1 + lam)
@@ -73,13 +74,10 @@ for i in range(1, num_images):
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
-    prev_denoised_frame = cv2.bilateralFilter(current_frame, 10, 30, 30)
+    prev_denoised_frame = denoised_frame
     prev_frame = current_frame
 
     current_time = time.time()  # 获取当前时间
     elapsed_time = current_time - start_time  # 计算经过的时间
     frame_number += 1
     print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒")
-
-print(max(lams))
-print(min(lams))

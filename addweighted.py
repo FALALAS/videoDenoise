@@ -7,8 +7,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var625'
-output_folder = '0001clean_add_var625'
+noised_folder = 'noised000var2500'
+output_folder = '0001clean_add_var2500'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -23,7 +23,7 @@ cv2.imwrite(output_path, denoised_frame)
 num_images = 100
 frame_number = 0
 
-varn = 625
+varn = 2500
 
 h = prev_frame.shape[0]
 w = prev_frame.shape[1]
@@ -49,11 +49,11 @@ for i in range(1, num_images):
 
     aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC)
     # 应用去噪算法
-    denoised_frame = cv2.addWeighted(current_frame, 0.21, aligned_frame, 0.81, 0)
+    denoised_frame = cv2.addWeighted(current_frame, 0.25, aligned_frame, 0.76, 0)
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
-    prev_denoised_frame = denoised_frame = cv2.bilateralFilter(current_frame, 10, 80, 80)
+    prev_denoised_frame = denoised_frame = cv2.bilateralFilter(current_frame, 10, 180, 180)
     prev_frame = current_frame
 
     current_time = time.time()  # 获取当前时间
