@@ -65,7 +65,8 @@ for i in range(1, num_images):
                     diff = diff ** 2
                     varx += diff
             varx = varx / win_area-varn
-            lam = varn / (varx + 0.1)
+
+            lam = varn / (varx + 1e-1)
             for i in range(0, win_size):
                 for j in range(0, win_size):
                     factor1 = np.float64(current_frame[x + i, y + j]) / (1 + lam)

@@ -1,9 +1,9 @@
 clear all;close all;
 
-varn = 100;
+varn = 400;
 clean_folder = '000';
-noised_folder = 'noised000var100'; % 图片所在文件夹
-output_folder = '000_vbm4d_var100_est';
+noised_folder = 'noised000var400'; % 图片所在文件夹
+output_folder = '000_vbm4d_var400';
 num_images = 100; % 图片数量
 % 假设图片大小为 MxN，这里需要根据实际情况调整
 M = 720; % 图片的高度
@@ -29,9 +29,9 @@ end
 
 
 % Modifiable parameters
-sigma = -1;      % Noise standard deviation. it should be in the same
+sigma = varn^(0.5);      % Noise standard deviation. it should be in the same
 % intensity range of the video
-profile = 'lc';      % V-BM4D parameter profile
+profile = 'np';      % V-BM4D parameter profile
 %  'lc' --> low complexity
 %  'np' --> normal profile
 do_wiener = 1;       % Wiener filtering
