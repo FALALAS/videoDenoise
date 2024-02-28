@@ -7,8 +7,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var100'
-output_folder = '0001clean_img_var100'
+noised_folder = 'noised000var400'
+output_folder = '0001clean_img_var400'
 os.makedirs(output_folder, exist_ok=True)
 # 第一帧是干净的
 clean_path = os.path.join(clean_folder, '00000000.png')
@@ -20,10 +20,9 @@ cv2.imwrite(output_path, denoised_frame)
 # 参数
 num_images = 100
 frame_number = 0
-win_size = 10
+win_size = 5
 win_area = win_size * win_size
-varn = 100
-lams = []
+varn = 400
 
 # 遍历图片文件
 for i in range(1, num_images):
@@ -69,9 +68,8 @@ for i in range(1, num_images):
                         diff = np.float64(current_frame[x + i, y + j, c]) - np.float64(prev_frame[x + i, y + j, c])
                         diff = diff ** 2
                         varx += diff
-                varx = varx / win_area - varn
-                lam = 50 * varn / (varx + 0.000000000001)
-                lams.append(lam)
+                varx = varx / win_area
+                lam = varn / varx
                 for i in range(0, win_size):
                     for j in range(0, win_size):
                         factor1 = np.float64(current_frame[x + i, y + j, c]) / (1 + lam)
@@ -86,6 +84,3 @@ for i in range(1, num_images):
     elapsed_time = current_time - start_time  # 计算经过的时间
     frame_number += 1
     print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒")
-
-print(max(lams))
-print(min(lams))

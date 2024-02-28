@@ -3,14 +3,18 @@ import numpy as np
 import os
 
 
-def calculate_variance_per_channel_cv2(image_path):
+def calculate_variance_per_channel_cv2(img):
     # 使用cv2读取图片（默认以彩色模式读取）
-    img = cv2.imread(image_path)
+    if len(img.shape) == 3:
+        # 分别计算每个颜色通道的方差
+        variance_b = np.var(img[:, :, 0])
+        variance_g = np.var(img[:, :, 1])
+        variance_r = np.var(img[:, :, 2])
+    else:
+        variance_b = np.var(img)
+        variance_g = np.var(img)
+        variance_r = np.var(img)
 
-    # 分别计算每个颜色通道的方差
-    variance_b = np.var(img[:, :, 0])
-    variance_g = np.var(img[:, :, 1])
-    variance_r = np.var(img[:, :, 2])
 
     return variance_b, variance_g, variance_r
 
@@ -23,7 +27,7 @@ variance_img = 0
 for i in range(100):
     img_name = f"{i:08d}.png"
     img_path = os.path.join(source_folder, img_name)
-    image = cv2.imread(img_path)
+    image = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
 
     if image is not None:
         # 向图像添加高斯噪声

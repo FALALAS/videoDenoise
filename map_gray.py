@@ -3,6 +3,16 @@ import numpy as np
 import time
 import os
 
+def adjusted_decay(x):
+    # 定义参数
+    a = 6.56
+    b = 0.3
+    c = 1.05
+    d = 1
+
+    # 计算函数值
+    return a * np.exp(-b * (x - c)) + d
+
 start_time = time.time()
 
 # 文件夹路径
@@ -22,7 +32,7 @@ cv2.imwrite(output_path, denoised_frame)
 # 参数
 num_images = 100
 frame_number = 0
-win_size = 4
+win_size = 5
 win_area = win_size * win_size
 varn = 400
 
@@ -64,7 +74,7 @@ for i in range(1, num_images):
                     diff = diff ** 2
                     varx += diff
             varx = varx / win_area
-            lam = varn / varx
+            lam = adjusted_decay(frame_number) * varn / varx
             for i in range(0, win_size):
                 for j in range(0, win_size):
                     factor1 = np.float64(current_frame[x + i, y + j]) / (1 + lam)

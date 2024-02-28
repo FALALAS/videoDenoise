@@ -7,8 +7,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var2500'
-output_folder = '0001clean_rewin_var2500'
+noised_folder = 'noised000var400'
+output_folder = '0001clean_rewin_var400'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -24,7 +24,7 @@ num_images = 100
 frame_number = 0
 win_size = 5
 win_area = win_size * win_size
-varn = 2500
+varn = 400
 
 h = prev_frame.shape[0]
 w = prev_frame.shape[1]
@@ -60,8 +60,8 @@ for i in range(1, num_images):
                         diff = np.float64(current_frame[x + i, y + j, c]) - np.float64(aligned_frame[x + i, y + j, c])
                         diff = diff ** 2
                         varx += diff
-                varx = varx / win_area - varn
-                lam = 5 * varn / (varx + 1e-16)
+                varx = varx / win_area
+                lam = varn / varx
                 for i in range(0, win_size):
                     for j in range(0, win_size):
                         factor1 = np.float64(current_frame[x + i, y + j, c]) / (1 + lam)
