@@ -27,8 +27,8 @@ def calculate_psnr(img1, img2):
 folder1 = '../000'  # Replace with the path to your '000' folder
 # folder2 = '../000_vbm4d_var400'
 # folder2 = '../noised000var400'
-# folder2 = '../0001clean_img_var625'
-folder2 = '../0001clean_gray_var400'
+folder2 = '../0001clean_grayimproved_var400'
+# folder2 = '../0001clean_rewin_var400'
 # folder2 = '../0001clean_rtvdLiao_var625'
 # folder2 = '../000_bm3d_var625'
 # folder2 = '0001clean_rtvdLiao_var100'
