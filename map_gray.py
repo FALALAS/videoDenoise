@@ -32,7 +32,7 @@ cv2.imwrite(output_path, denoised_frame)
 # 参数
 num_images = 100
 frame_number = 0
-win_size = 5
+win_size = 2
 win_area = win_size * win_size
 varn = 400
 
@@ -74,7 +74,7 @@ for i in range(1, num_images):
                     diff = diff ** 2
                     varx += diff
             varx = varx / win_area
-            lam = adjusted_decay(frame_number) * varn / varx
+            lam = adjusted_decay(frame_number) * varn / (varx + 1e-16)
             for i in range(0, win_size):
                 for j in range(0, win_size):
                     factor1 = np.float64(current_frame[x + i, y + j]) / (1 + lam)

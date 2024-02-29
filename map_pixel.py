@@ -72,8 +72,8 @@ for frame_number in range(1, num_images):
             diff = np.float64(current_frame_gray[x, y]) - np.float64(aligned_frame_gray[x, y])
             diff = diff ** 2
             varx = diff
-            #varx = np.absolute(varx - varn)
-            lam = varn / (varx + 1e-16)
+            varx = np.absolute(varx - varn)
+            lam = 10 * varn / (varx + 1e-16)
             factor1 = np.float64(current_frame[x, y]) / (1 + lam)
             factor2 = np.float64(aligned_frame[x, y]) * lam / (1 + lam)
             denoised_frame[x, y] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)

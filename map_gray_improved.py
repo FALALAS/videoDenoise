@@ -20,7 +20,7 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var400'
+noised_folder = 'noised000var625'
 output_folder = '0001clean_grayimproved_var400'
 os.makedirs(output_folder, exist_ok=True)
 
@@ -31,7 +31,6 @@ prev_denoised_frame = prev_frame
 denoised_frame = prev_frame
 output_path = os.path.join(output_folder, '00000000.png')
 cv2.imwrite(output_path, denoised_frame)
-var_frame = np.zeros((prev_frame.shape[0], prev_frame.shape[1]))
 
 # 参数
 num_images = 100
@@ -76,9 +75,9 @@ for frame_number in range(1, num_images):
                     diff = np.float64(current_frame_gray[x + i, y + j]) - np.float64(aligned_frame_gray[x + i, y + j])
                     diff = diff ** 2
                     varx += diff
-                    var_frame[x + i, y + j] = diff
+
             varx = np.absolute(varx / win_area - varn)
-            lam = 10 * varn / (varx + 1e-16)
+            lam = adjusted_decay(frame_number) * varn / (varx + 1e-16)
             for i in range(0, win_size):
                 for j in range(0, win_size):
                     factor1 = np.float64(current_frame[x + i, y + j]) / (1 + lam)
@@ -87,11 +86,8 @@ for frame_number in range(1, num_images):
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
-    prev_denoised_frame = cv2.bilateralFilter(current_frame, 10, 60, 60)
+    prev_denoised_frame = cv2.bilateralFilter(denoised_frame, 10, 20, 20)
     prev_frame = current_frame
-
-    df = pd.DataFrame(var_frame)
-    df.to_excel(f"file_{frame_number}.xlsx", index=False)
 
     current_time = time.time()  # 获取当前时间
     elapsed_time = current_time - start_time  # 计算经过的时间
