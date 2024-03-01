@@ -17,8 +17,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var400'
-output_folder = '0001clean_gray_var400'
+noised_folder = 'noised000var625'
+output_folder = '0001clean_gray_var625'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -31,10 +31,9 @@ cv2.imwrite(output_path, denoised_frame)
 
 # 参数
 num_images = 100
-frame_number = 0
-win_size = 2
+win_size = 4
 win_area = win_size * win_size
-varn = 400
+varn = 625
 
 h = prev_frame.shape[0]
 w = prev_frame.shape[1]
@@ -42,9 +41,9 @@ flow_map = np.meshgrid(np.arange(w), np.arange(h))
 flow_map = np.stack(flow_map, axis=-1).astype(np.float32)  # 调整为三维数组
 
 # 遍历图片文件
-for i in range(1, num_images):
+for frame_number in range(1, num_images):
     # 构造文件名
-    filename = f'{i:08d}.png'
+    filename = f'{frame_number:08d}.png'
     noised_path = os.path.join(noised_folder, filename)
     current_frame = cv2.imread(noised_path)
 
@@ -83,10 +82,9 @@ for i in range(1, num_images):
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
-    prev_denoised_frame = denoised_frame
+    prev_denoised_frame = cv2.bilateralFilter(denoised_frame, 10, 30, 30)
     prev_frame = current_frame
 
     current_time = time.time()  # 获取当前时间
     elapsed_time = current_time - start_time  # 计算经过的时间
-    frame_number += 1
     print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒")

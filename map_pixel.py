@@ -20,8 +20,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var400'
-output_folder = '0001clean_pixel_var400'
+noised_folder = 'noised000var625'
+output_folder = '0001clean_pixel_var625'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -34,9 +34,7 @@ cv2.imwrite(output_path, denoised_frame)
 
 # 参数
 num_images = 100
-win_size = 2
-win_area = win_size * win_size
-varn = 400
+varn = 625
 
 h = prev_frame.shape[0]
 w = prev_frame.shape[1]
@@ -72,15 +70,15 @@ for frame_number in range(1, num_images):
             diff = np.float64(current_frame_gray[x, y]) - np.float64(aligned_frame_gray[x, y])
             diff = diff ** 2
             varx = diff
-            varx = np.absolute(varx - varn)
-            lam = 10 * varn / (varx + 1e-16)
+            # varx = np.absolute(varx - varn)
+            lam = varn / (varx + 1e-16)
             factor1 = np.float64(current_frame[x, y]) / (1 + lam)
             factor2 = np.float64(aligned_frame[x, y]) * lam / (1 + lam)
             denoised_frame[x, y] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
-    prev_denoised_frame = denoised_frame
+    prev_denoised_frame = cv2.bilateralFilter(denoised_frame, 10, 30, 30)
     prev_frame = current_frame
 
     current_time = time.time()  # 获取当前时间
