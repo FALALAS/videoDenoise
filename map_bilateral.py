@@ -29,7 +29,7 @@ cv2.imwrite(output_path, denoised_frame)
 
 # 参数
 num_images = 100
-win_size = 4
+win_size = 2
 win_area = win_size * win_size
 varn = 625
 
@@ -80,7 +80,7 @@ for frame_number in range(1, num_images):
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
-    prev_denoised_frame = cv2.bilateralFilter(denoised_frame, 10, 40, 40)
+    prev_denoised_frame = cv2.bilateralFilter(denoised_frame, 10, 50, 50)
     prev_frame = current_frame
 
     current_time = time.time()  # 获取当前时间
