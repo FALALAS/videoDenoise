@@ -2,13 +2,14 @@ import cv2
 import numpy as np
 import time
 import os
+from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 
 start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var400'
-output_folder = '0001clean_rewin_var400'
+noised_folder = 'noised000var625'
+output_folder = '0001clean_rewin_var625'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -21,10 +22,9 @@ cv2.imwrite(output_path, denoised_frame)
 
 # 参数
 num_images = 100
-frame_number = 0
 win_size = 5
 win_area = win_size * win_size
-varn = 400
+varn = 625
 
 h = prev_frame.shape[0]
 w = prev_frame.shape[1]
@@ -32,9 +32,9 @@ flow_map = np.meshgrid(np.arange(w), np.arange(h))
 flow_map = np.stack(flow_map, axis=-1).astype(np.float32)  # 调整为三维数组
 
 # 遍历图片文件
-for i in range(1, num_images):
+for frame_number in range(1, num_images):
     # 构造文件名
-    filename = f'{i:08d}.png'
+    filename = f'{frame_number:08d}.png'
     noised_path = os.path.join(noised_folder, filename)
     current_frame = cv2.imread(noised_path)
     '''
@@ -60,8 +60,8 @@ for i in range(1, num_images):
                         diff = np.float64(current_frame[x + i, y + j, c]) - np.float64(aligned_frame[x + i, y + j, c])
                         diff = diff ** 2
                         varx += diff
-                varx = varx / win_area
-                lam = varn / varx
+                varx = varx / win_area - varn
+                lam = 10 * varn / (varx+1e-16)
                 for i in range(0, win_size):
                     for j in range(0, win_size):
                         factor1 = np.float64(current_frame[x + i, y + j, c]) / (1 + lam)
@@ -75,5 +75,23 @@ for i in range(1, num_images):
 
     current_time = time.time()  # 获取当前时间
     elapsed_time = current_time - start_time  # 计算经过的时间
-    frame_number += 1
     print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒")
+
+# List of PSNR values
+psnr_values = []
+
+# Loop through the image filenames
+for i in range(1, 100):
+    filename = f'{i:08d}.png'  # Format the filename (e.g., 0000000.png)
+
+    # Load the corresponding images from both folders
+    img1 = cv2.imread(os.path.join(output_folder, filename))
+    img2 = cv2.imread(os.path.join(clean_folder, filename))
+
+    # Calculate PSNR
+    psnr = compare_psnr(img1, img2)
+    psnr_values.append(psnr)
+
+# Calculate the average PSNR
+average_psnr = np.mean(psnr_values)
+print(f'Average PSNR: {average_psnr}')

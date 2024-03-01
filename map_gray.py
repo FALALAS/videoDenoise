@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 import time
 import os
+from skimage.metrics import peak_signal_noise_ratio as compare_psnr
+
 
 def adjusted_decay(x):
     # 定义参数
@@ -13,12 +15,13 @@ def adjusted_decay(x):
     # 计算函数值
     return a * np.exp(-b * (x - c)) + d
 
+
 start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var625'
-output_folder = '0001clean_gray_var625'
+noised_folder = 'noised000var2500'
+output_folder = '0001clean_gray_var2500'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -33,7 +36,7 @@ cv2.imwrite(output_path, denoised_frame)
 num_images = 100
 win_size = 4
 win_area = win_size * win_size
-varn = 625
+varn = 2500
 
 h = prev_frame.shape[0]
 w = prev_frame.shape[1]
@@ -82,9 +85,28 @@ for frame_number in range(1, num_images):
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
-    prev_denoised_frame = cv2.bilateralFilter(denoised_frame, 10, 30, 30)
+    prev_denoised_frame = cv2.bilateralFilter(denoised_frame, 10, 90, 90)
     prev_frame = current_frame
 
     current_time = time.time()  # 获取当前时间
     elapsed_time = current_time - start_time  # 计算经过的时间
     print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒")
+
+# List of PSNR values
+psnr_values = []
+
+# Loop through the image filenames
+for i in range(1, 100):
+    filename = f'{i:08d}.png'  # Format the filename (e.g., 0000000.png)
+
+    # Load the corresponding images from both folders
+    img1 = cv2.imread(os.path.join(output_folder, filename))
+    img2 = cv2.imread(os.path.join(clean_folder, filename))
+
+    # Calculate PSNR
+    psnr = compare_psnr(img1, img2)
+    psnr_values.append(psnr)
+
+# Calculate the average PSNR
+average_psnr = np.mean(psnr_values)
+print(f'Average PSNR: {average_psnr}')

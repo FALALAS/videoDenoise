@@ -12,7 +12,6 @@ def adjusted_decay(x):
     c = 1.05
     d = 1
 
-
     # 计算函数值
     return a * np.exp(-b * (x - c)) + d
 
@@ -21,8 +20,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var625'
-output_folder = '0001clean_grayimproved_var625'
+noised_folder = 'noised000var2500'
+output_folder = '0001clean_full_var2500'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -35,9 +34,7 @@ cv2.imwrite(output_path, denoised_frame)
 
 # 参数
 num_images = 100
-win_size = 4
-win_area = win_size * win_size
-varn = 625
+varn = 2500
 
 h = prev_frame.shape[0]
 w = prev_frame.shape[1]
@@ -68,27 +65,24 @@ for frame_number in range(1, num_images):
 
     # 应用去噪算法
     denoised_frame = np.zeros((prev_frame.shape[0], prev_frame.shape[1], prev_frame.shape[2]), dtype=np.uint8)
-    for x in range(0, prev_frame.shape[0], win_size):
-        for y in range(0, prev_frame.shape[1], win_size):
-            varx = np.float64(0)
-            for i in range(0, win_size):
-                for j in range(0, win_size):
-                    diff = np.float64(current_frame_gray[x + i, y + j]) - np.float64(aligned_frame_gray[x + i, y + j])
-                    diff = diff ** 2
-                    varx += diff
+    varx = 0
+    for x in range(0, prev_frame.shape[0]):
+        for y in range(0, prev_frame.shape[1]):
+            diff = np.float64(current_frame_gray[x, y]) - np.float64(aligned_frame_gray[x, y])
+            diff = diff ** 2
+            varx += diff
+            # varx = np.absolute(varx - varn)
 
-            varx = np.absolute(varx / win_area - varn)
-            # lam = adjusted_decay(frame_number) * varn / (varx + 1e-16)
-            lam = varn / (varx + 1e-16)
-            for i in range(0, win_size):
-                for j in range(0, win_size):
-                    factor1 = np.float64(current_frame[x + i, y + j]) / (1 + lam)
-                    factor2 = np.float64(aligned_frame[x + i, y + j]) * lam / (1 + lam)
-                    denoised_frame[x + i, y + j] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
+    varn = varx / (prev_frame.shape[0] * prev_frame.shape[1])
+    varx = np.absolute(varx - varn)
+    lam = varn / (varx + 1e-16)
+    factor1 = np.float64(current_frame[x, y]) / (1 + lam)
+    factor2 = np.float64(aligned_frame[x, y]) * lam / (1 + lam)
+    denoised_frame[x, y] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
-    prev_denoised_frame = cv2.bilateralFilter(denoised_frame, 10, 90, 90)
+    prev_denoised_frame = denoised_frame
     prev_frame = current_frame
 
     current_time = time.time()  # 获取当前时间
