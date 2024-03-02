@@ -85,7 +85,7 @@ for frame_number in range(1, num_images):
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
-    prev_denoised_frame = cv2.bilateralFilter(denoised_frame, 10, 90, 90)
+    prev_denoised_frame = denoised_frame
     prev_frame = current_frame
 
     current_time = time.time()  # 获取当前时间

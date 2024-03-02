@@ -7,13 +7,13 @@ from bm3d import bm3d_rgb
 start_time = time.time()
 
 # 文件夹路径
-noised_folder = 'noised000var400'
-output_folder = '000_bm3d_var400'
+noised_folder = 'noised000var2500'
+output_folder = '000_bm3d_var2500'
 os.makedirs(output_folder, exist_ok=True)
 
 # 参数
 num_images = 100
-varn = 400
+varn = 2500
 
 # 遍历图片文件
 for i in range(0, num_images):
