@@ -78,8 +78,8 @@ for frame_number in range(1, num_images):
                     varx += diff
 
             varx = np.absolute(varx / win_area - varn)
-            # lam = adjusted_decay(frame_number) * varn / (varx + 1e-16)
-            lam = varn / (varx + 1e-16)
+            lam = 10 * adjusted_decay(frame_number) * varn / (varx + 1e-16)
+            # lam = varn / (varx + 1e-16)
             for i in range(0, win_size):
                 for j in range(0, win_size):
                     factor1 = np.float64(current_frame[x + i, y + j]) / (1 + lam)

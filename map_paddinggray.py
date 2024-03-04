@@ -2,26 +2,14 @@ import cv2
 import numpy as np
 import time
 import os
-import pandas as pd
 from skimage.metrics import peak_signal_noise_ratio as compare_psnr
-
-def adjusted_decay(x):
-    # 定义参数
-    a = 6.56
-    b = 0.3
-    c = 1.05
-    d = 1
-
-    # 计算函数值
-    return a * np.exp(-b * (x - c)) + d
-
 
 start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var2500'
-output_folder = '0001clean_full_var2500'
+noised_folder = 'noised000var625'
+output_folder = '0001clean_paddinggray_var625'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -34,12 +22,18 @@ cv2.imwrite(output_path, denoised_frame)
 
 # 参数
 num_images = 100
-varn = 2500
+win_size = 5
+win_area = win_size * win_size
+varn = 625
+padding_width = win_size // 2
 
 h = prev_frame.shape[0]
 w = prev_frame.shape[1]
 flow_map = np.meshgrid(np.arange(w), np.arange(h))
 flow_map = np.stack(flow_map, axis=-1).astype(np.float32)  # 调整为三维数组
+
+padding_h = h + 2 * padding_width
+padding_w = w + 2 * padding_width
 
 # 遍历图片文件
 for frame_number in range(1, num_images):
@@ -65,20 +59,23 @@ for frame_number in range(1, num_images):
 
     # 应用去噪算法
     denoised_frame = np.zeros((prev_frame.shape[0], prev_frame.shape[1], prev_frame.shape[2]), dtype=np.uint8)
-    varx = 0
-    for x in range(0, prev_frame.shape[0]):
-        for y in range(0, prev_frame.shape[1]):
-            diff = np.float64(current_frame_gray[x, y]) - np.float64(aligned_frame_gray[x, y])
-            diff = diff ** 2
-            varx += diff
-            # varx = np.absolute(varx - varn)
+    for x in range(0, padding_h - win_size + 1):
+        center_x = x + padding_width
+        for y in range(0, padding_w - win_size + 1):
+            center_y = y + padding_width
+            current_window = current_frame_gray[x: x + win_size, y: y + win_size]
 
-    varx = varx / (prev_frame.shape[0] * prev_frame.shape[1])
-    varx = np.absolute(varx - varn)
-    lam = 2 * varn / (varx + 1e-16)
-    factor1 = np.float64(current_frame) / (1 + lam)
-    factor2 = np.float64(aligned_frame) * lam / (1 + lam)
-    denoised_frame = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
+            diff = current_window.astype(np.float64) - aligned_frame_gray[center_x, center_y].astype(np.float64)
+            varx = np.mean(diff ** 2) - varn
+            if varx < 0:
+                count = count + 1
+            varx = np.absolute(varx)
+            lam = varn / (varx + 1e-16)
+
+            factor1 = np.float64(current_frame[center_x, center_y]) / (1 + lam)
+            factor2 = np.float64(aligned_frame[center_x, center_y]) * lam / (1 + lam)
+            denoised_frame[center_x, center_y] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
+
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)

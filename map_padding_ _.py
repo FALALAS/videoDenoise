@@ -7,8 +7,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var2500'
-output_folder = '0001clean_padding9_var2500'
+noised_folder = 'noised000var625'
+output_folder = '0001clean_padding11_var625'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -21,9 +21,9 @@ cv2.imwrite(output_path, denoised_frame)
 
 # 参数
 num_images = 100
-win_size = 9
+win_size = 11
 win_area = win_size * win_size
-varn = 2500
+varn = 625
 padding_width = win_size // 2
 
 h = prev_frame.shape[0]
@@ -61,20 +61,22 @@ for frame_number in range(1, num_images):
                                        cv2.BORDER_CONSTANT, value=0)
 
     # 应用去噪算法
+    count = 0
     denoised_frame = np.zeros((padding_h, padding_w, prev_frame.shape[2]), dtype=np.uint8)
     for x in range(0, padding_h - win_size + 1):
+        center_x = x + padding_width
         for y in range(0, padding_w - win_size + 1):
+            center_y = y + padding_width
             for c in range(0, prev_frame.shape[2]):
                 current_window = current_frame[x: x + win_size, y: y + win_size, c]
-                aligned_window = aligned_frame[x: x + win_size, y: y + win_size, c]
 
-                diff = current_window.astype(np.float64) - aligned_window.astype(np.float64)
-                varx = np.mean(diff ** 2)
-                varx = np.absolute(varx - varn)
+                diff = current_window.astype(np.float64) - aligned_frame[center_x, center_y, c].astype(np.float64)
+                varx = np.mean(diff ** 2) - varn
+                if varx < 0:
+                    count = count + 1
+                varx = np.absolute(varx)
                 lam = varn / (varx + 1e-16)
 
-                center_x = x + padding_width
-                center_y = y + padding_width
                 factor1 = np.float64(current_frame[center_x, center_y, c]) / (1 + lam)
                 factor2 = np.float64(aligned_frame[center_x, center_y, c]) * lam / (1 + lam)
                 denoised_frame[center_x, center_y, c] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
@@ -85,4 +87,4 @@ for frame_number in range(1, num_images):
 
     current_time = time.time()  # 获取当前时间
     elapsed_time = current_time - start_time  # 计算经过的时间
-    print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒")
+    print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒, 异常窗口 {count} 个")
