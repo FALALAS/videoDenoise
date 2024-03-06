@@ -8,8 +8,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var625'
-output_folder = '0001clean_paddinggray_var625'
+noised_folder = 'noised000var2500'
+output_folder = '0001clean_paddinggray5_var2500'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -24,7 +24,7 @@ cv2.imwrite(output_path, denoised_frame)
 num_images = 100
 win_size = 5
 win_area = win_size * win_size
-varn = 625
+varn = 2500
 padding_width = win_size // 2
 
 h = prev_frame.shape[0]
@@ -57,8 +57,20 @@ for frame_number in range(1, num_images):
     aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC)
     aligned_frame_gray = cv2.cvtColor(aligned_frame, cv2.COLOR_BGR2GRAY)
 
+    current_frame_gray = cv2.copyMakeBorder(current_frame_gray, padding_width, padding_width, padding_width,
+                                            padding_width,
+                                            cv2.BORDER_CONSTANT, value=0)
+    aligned_frame_gray = cv2.copyMakeBorder(aligned_frame_gray, padding_width, padding_width, padding_width,
+                                            padding_width,
+                                            cv2.BORDER_CONSTANT, value=0)
+    current_frame = cv2.copyMakeBorder(current_frame, padding_width, padding_width, padding_width, padding_width,
+                                       cv2.BORDER_CONSTANT, value=0)
+    aligned_frame = cv2.copyMakeBorder(aligned_frame, padding_width, padding_width, padding_width, padding_width,
+                                       cv2.BORDER_CONSTANT, value=0)
+
     # 应用去噪算法
-    denoised_frame = np.zeros((prev_frame.shape[0], prev_frame.shape[1], prev_frame.shape[2]), dtype=np.uint8)
+    count = 0
+    denoised_frame = np.zeros((padding_h, padding_w, prev_frame.shape[2]), dtype=np.uint8)
     for x in range(0, padding_h - win_size + 1):
         center_x = x + padding_width
         for y in range(0, padding_w - win_size + 1):
@@ -76,7 +88,8 @@ for frame_number in range(1, num_images):
             factor2 = np.float64(aligned_frame[center_x, center_y]) * lam / (1 + lam)
             denoised_frame[center_x, center_y] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
 
-
+    denoised_frame = denoised_frame[padding_width: -padding_width, padding_width: -padding_width, :]
+    current_frame = current_frame[padding_width: -padding_width, padding_width: -padding_width, :]
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
     prev_denoised_frame = denoised_frame
@@ -84,7 +97,7 @@ for frame_number in range(1, num_images):
 
     current_time = time.time()  # 获取当前时间
     elapsed_time = current_time - start_time  # 计算经过的时间
-    print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒")
+    print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒异常窗口 {count} 个")
 
 # List of PSNR values
 psnr_values = []

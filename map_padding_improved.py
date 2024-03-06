@@ -2,13 +2,14 @@ import cv2
 import numpy as np
 import time
 import os
+from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 
 start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var625'
-output_folder = '0001clean_padding11_var625'
+noised_folder = 'noised000var2500'
+output_folder = '0001clean_padding5_var2500'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -21,9 +22,9 @@ cv2.imwrite(output_path, denoised_frame)
 
 # 参数
 num_images = 100
-win_size = 11
+win_size = 5
 win_area = win_size * win_size
-varn = 625
+varn = 2500
 padding_width = win_size // 2
 
 h = prev_frame.shape[0]
@@ -61,21 +62,16 @@ for frame_number in range(1, num_images):
                                        cv2.BORDER_CONSTANT, value=0)
 
     # 应用去噪算法
-    count = 0
     denoised_frame = np.zeros((padding_h, padding_w, prev_frame.shape[2]), dtype=np.uint8)
     for x in range(0, padding_h - win_size + 1):
         center_x = x + padding_width
         for y in range(0, padding_w - win_size + 1):
             center_y = y + padding_width
             for c in range(0, prev_frame.shape[2]):
-                current_window = current_frame[x: x + win_size, y: y + win_size, c]
+                aligned_window = aligned_frame[x: x + win_size, y: y + win_size, c]
 
-                diff = current_window.astype(np.float64) - aligned_frame[center_x, center_y, c].astype(np.float64)
-                varx = np.mean(diff ** 2) - varn
-                if varx < 0:
-                    count = count + 1
-                varx = np.absolute(varx)
-                lam = varn / (varx + 1e-16)
+                varx = np.var(aligned_window)
+                lam = varn / varx
 
                 factor1 = np.float64(current_frame[center_x, center_y, c]) / (1 + lam)
                 factor2 = np.float64(aligned_frame[center_x, center_y, c]) * lam / (1 + lam)
@@ -87,4 +83,23 @@ for frame_number in range(1, num_images):
 
     current_time = time.time()  # 获取当前时间
     elapsed_time = current_time - start_time  # 计算经过的时间
-    print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒, 异常窗口 {count} 个")
+    print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒")
+
+# List of PSNR values
+psnr_values = []
+
+# Loop through the image filenames
+for i in range(1, 100):
+    filename = f'{i:08d}.png'  # Format the filename (e.g., 0000000.png)
+
+    # Load the corresponding images from both folders
+    img1 = cv2.imread(os.path.join(output_folder, filename))
+    img2 = cv2.imread(os.path.join(clean_folder, filename))
+
+    # Calculate PSNR
+    psnr = compare_psnr(img1, img2)
+    psnr_values.append(psnr)
+
+# Calculate the average PSNR
+average_psnr = np.mean(psnr_values)
+print(f'Average PSNR: {average_psnr}')
