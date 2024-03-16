@@ -8,8 +8,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var2500'
-output_folder = '0001clean_paddinggray5_var2500'
+noised_folder = 'noised000sigma25'
+output_folder = '0001clean_paddinggray5_var625'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -24,7 +24,7 @@ cv2.imwrite(output_path, denoised_frame)
 num_images = 100
 win_size = 5
 win_area = win_size * win_size
-varn = 2500
+varn = 625
 padding_width = win_size // 2
 
 h = prev_frame.shape[0]
@@ -81,8 +81,8 @@ for frame_number in range(1, num_images):
             varx = np.mean(diff ** 2) - varn
             if varx < 0:
                 count = count + 1
-            varx = np.absolute(varx)
-            lam = varn / (varx + 1e-16)
+                varx = 0
+            lam = varn / (varx + 0.1)
 
             factor1 = np.float64(current_frame[center_x, center_y]) / (1 + lam)
             factor2 = np.float64(aligned_frame[center_x, center_y]) * lam / (1 + lam)
