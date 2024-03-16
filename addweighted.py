@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import time
 import os
+from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 
 start_time = time.time()
 
@@ -36,24 +37,29 @@ for i in range(1, num_images):
     filename = f'{i:08d}.png'
     noised_path = os.path.join(noised_folder, filename)
     current_frame = cv2.imread(noised_path)
+    current_frame_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
+    prev_frame_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
     '''
     flow = cv2.optflow.DenseRLOFOpticalFlow_create()
     current_flow = flow.calc(prev_frame, current_frame, None)
     '''
-    current_frame_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
-    prev_frame_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
 
     flow = cv2.DISOpticalFlow_create(2)
     current_flow = flow.calc(prev_frame_gray, current_frame_gray, None)
-    new_coords = flow_map - current_flow
 
-    aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC)
+    '''
+    flow = cv2.optflow.DualTVL1OpticalFlow.create()
+    current_flow = flow.calc(prev_frame_gray, current_frame_gray, None)
+    '''
+
+    new_coords = flow_map - current_flow
+    aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC, borderMode=cv2.BORDER_TRANSPARENT)
     # 应用去噪算法
-    denoised_frame = cv2.addWeighted(current_frame, 0.25, aligned_frame, 0.76, 0)
+    denoised_frame = cv2.addWeighted(current_frame, 0.39, aligned_frame, 0.62, 0)
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
-    prev_denoised_frame = denoised_frame = cv2.bilateralFilter(current_frame, 10, 180, 180)
+    prev_denoised_frame = denoised_frame
     prev_frame = current_frame
 
     current_time = time.time()  # 获取当前时间
@@ -61,4 +67,21 @@ for i in range(1, num_images):
     frame_number += 1
     print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒")
 
+# List of PSNR values
+psnr_values = []
 
+# Loop through the image filenames
+for i in range(1, 100):
+    filename = f'{i:08d}.png'  # Format the filename (e.g., 0000000.png)
+
+    # Load the corresponding images from both folders
+    img1 = cv2.imread(os.path.join(output_folder, filename))
+    img2 = cv2.imread(os.path.join(clean_folder, filename))
+
+    # Calculate PSNR
+    psnr = compare_psnr(img1, img2)
+    psnr_values.append(psnr)
+
+# Calculate the average PSNR
+average_psnr = np.mean(psnr_values)
+print(f'Average PSNR: {average_psnr}')

@@ -39,22 +39,19 @@ padding_w = w + 2 * padding_width
 for frame_number in range(1, num_images):
     # 构造文件名
     filename = f'{frame_number:08d}.png'
-
     noised_path = os.path.join(noised_folder, filename)
     current_frame = cv2.imread(noised_path)
 
-    # 检查图片是否被成功加载
-    if current_frame is None:
-        print(f"无法读取图像文件 {filename}")
-        continue
-
     current_frame_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
-    prev_frame_gray = cv2.cvtColor(prev_denoised_frame, cv2.COLOR_BGR2GRAY)
+    prev_frame_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
     flow = cv2.DISOpticalFlow_create(2)
     current_flow = flow.calc(prev_frame_gray, current_frame_gray, None)
-
+    '''
+    flow = cv2.optflow.DenseRLOFOpticalFlow_create()
+    current_flow = flow.calc(prev_denoised_frame, current_frame, None)
+    '''
     new_coords = flow_map - current_flow
-    aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC)
+    aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC, cv2.BORDER_REFLECT)
 
     current_frame = cv2.copyMakeBorder(current_frame, padding_width, padding_width, padding_width, padding_width,
                                        cv2.BORDER_CONSTANT, value=0)
@@ -71,15 +68,17 @@ for frame_number in range(1, num_images):
                 aligned_window = aligned_frame[x: x + win_size, y: y + win_size, c]
 
                 varx = np.var(aligned_window)
-                lam = varn / varx
+                lam = varx / varn
 
-                factor1 = np.float64(current_frame[center_x, center_y, c]) / (1 + lam)
-                factor2 = np.float64(aligned_frame[center_x, center_y, c]) * lam / (1 + lam)
+                factor1 = np.float64(current_frame[center_x, center_y, c]) * lam / (1 + lam)
+                factor2 = np.float64(aligned_frame[center_x, center_y, c]) / (1 + lam)
                 denoised_frame[center_x, center_y, c] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
     denoised_frame = denoised_frame[padding_width: -padding_width, padding_width: -padding_width, :]
+    current_frame = current_frame[padding_width: -padding_width, padding_width: -padding_width, :]
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
-    prev_frame = denoised_frame
+    prev_denoised_frame = denoised_frame
+    prev_frame = current_frame
 
     current_time = time.time()  # 获取当前时间
     elapsed_time = current_time - start_time  # 计算经过的时间
