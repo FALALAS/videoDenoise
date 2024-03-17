@@ -20,7 +20,7 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var625'
+noised_folder = 'noised000sigma25'
 output_folder = '0001clean_gray_var625'
 os.makedirs(output_folder, exist_ok=True)
 
@@ -76,7 +76,7 @@ for frame_number in range(1, num_images):
                     diff = diff ** 2
                     varx += diff
             varx = varx / win_area
-            lam = adjusted_decay(frame_number) * varn / (varx + 1e-16)
+            lam = varn / (varx + 1e-16)
             for i in range(0, win_size):
                 for j in range(0, win_size):
                     factor1 = np.float64(current_frame[x + i, y + j]) / (1 + lam)
