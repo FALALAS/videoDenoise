@@ -8,14 +8,14 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000sigma25'
-output_folder = '0001clean_bi5_var625'
+noised_folder = 'noised000sigma15'
+output_folder = '0001clean_bi5_var225'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
 noised_path = os.path.join(noised_folder, '00000000.png')
 prev_frame = cv2.imread(noised_path)
-denoised_frame = cv2.bilateralFilter(prev_frame, 10, 80, 80)
+denoised_frame = cv2.bilateralFilter(prev_frame, 10, 40, 40)
 prev_denoised_frame = denoised_frame
 output_path = os.path.join(output_folder, '00000000.png')
 cv2.imwrite(output_path, denoised_frame)
@@ -24,7 +24,7 @@ cv2.imwrite(output_path, denoised_frame)
 num_images = 100
 win_size = 5
 win_area = win_size * win_size
-varn = 625
+varn = 225
 padding_width = win_size // 2
 
 h = prev_frame.shape[0]
@@ -63,12 +63,12 @@ for frame_number in range(1, num_images):
             center_y = y + padding_width
             current_window = current_frame_y[x: x + win_size, y: y + win_size]
             diff = current_window.astype(np.float64) - prev_denoised_frame_y[center_x, center_y].astype(np.float64)
-            varx = np.mean(diff ** 2)
-            '''
+            varx = np.mean(diff ** 2) - varn
+
             if varx < 0:
                 count = count + 1
                 varx = 0
-            '''
+
 
             lam = varn / (varx + 0.1)
 

@@ -20,8 +20,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000sigma25'
-output_folder = '0001clean_gray_var625'
+noised_folder = 'noised000sigma15'
+output_folder = '0001clean_gray_var225'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -52,14 +52,15 @@ for frame_number in range(1, num_images):
 
     current_frame_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
     prev_frame_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
+    '''
     flow = cv2.DISOpticalFlow_create(2)
     flow.setFinestScale(0)
     current_flow = flow.calc(prev_frame_gray, current_frame_gray, None)
-
     '''
+
+
     flow = cv2.optflow.DenseRLOFOpticalFlow_create()
     current_flow = flow.calc(prev_denoised_frame, current_frame, None)
-    '''
 
     new_coords = flow_map - current_flow
     aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC)
@@ -70,18 +71,18 @@ for frame_number in range(1, num_images):
     for x in range(0, prev_frame.shape[0], win_size):
         for y in range(0, prev_frame.shape[1], win_size):
             varx = np.float64(0)
-            for i in range(0, win_size):
-                for j in range(0, win_size):
-                    diff = np.float64(current_frame_gray[x + i, y + j]) - np.float64(aligned_frame_gray[x + i, y + j])
-                    diff = diff ** 2
-                    varx += diff
-            varx = varx / win_area
+            current_window_gray = current_frame_gray[x:x+win_size, y:y+win_size]
+            aligned_window_gray = aligned_frame_gray[x:x+win_size, y:y+win_size]
+            diff = current_frame_gray - aligned_frame_gray
+
+            varx = np.mean(diff**2)
             lam = varn / (varx + 1e-16)
-            for i in range(0, win_size):
-                for j in range(0, win_size):
-                    factor1 = np.float64(current_frame[x + i, y + j]) / (1 + lam)
-                    factor2 = np.float64(aligned_frame[x + i, y + j]) * lam / (1 + lam)
-                    denoised_frame[x + i, y + j] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
+
+            current_window = current_frame[x:x + win_size, y:y + win_size]
+            aligned_window = aligned_frame[x:x + win_size, y:y + win_size]
+            factor1 = np.float64(current_window) / (1 + lam)
+            factor2 = np.float64(aligned_window) * lam / (1 + lam)
+            denoised_frame[x:x+win_size, y:y+win_size] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)

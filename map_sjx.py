@@ -9,14 +9,14 @@ start_time = time.time()
 # 文件夹路径
 clean_folder = '000'
 noised_folder = 'noised000sigma15'
-output_folder = '0001clean_paddingyuv5_var225'
+output_folder = '0001clean_bi5_var225'
 os.makedirs(output_folder, exist_ok=True)
 
-# 第一帧是干净的
-clean_path = os.path.join(clean_folder, '00000000.png')
-prev_frame = cv2.imread(clean_path)
-prev_denoised_frame = prev_frame
-denoised_frame = prev_frame
+
+noised_path = os.path.join(noised_folder, '00000000.png')
+prev_frame = cv2.imread(noised_path)
+denoised_frame = cv2.bilateralFilter(prev_frame, 10, 40, 40)
+prev_denoised_frame = denoised_frame
 output_path = os.path.join(output_folder, '00000000.png')
 cv2.imwrite(output_path, denoised_frame)
 
@@ -24,13 +24,11 @@ cv2.imwrite(output_path, denoised_frame)
 num_images = 100
 win_size = 5
 win_area = win_size * win_size
-varn = 625
+varn = 225
 padding_width = win_size // 2
 
 h = prev_frame.shape[0]
 w = prev_frame.shape[1]
-flow_map = np.meshgrid(np.arange(w), np.arange(h))
-flow_map = np.stack(flow_map, axis=-1).astype(np.float32)  # 调整为三维数组
 
 padding_h = h + 2 * padding_width
 padding_w = w + 2 * padding_width
@@ -42,58 +40,49 @@ for frame_number in range(1, num_images):
     noised_path = os.path.join(noised_folder, filename)
     current_frame = cv2.imread(noised_path)
 
-    current_frame_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2YUV)[:,:,0]
-    prev_frame_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2YUV)[:,:,0]
-    flow = cv2.DISOpticalFlow_create(2)
-    flow.setFinestScale(0)
-    current_flow = flow.calc(prev_frame_gray, current_frame_gray, None)
+    current_frame_y = cv2.cvtColor(current_frame, cv2.COLOR_BGR2YUV)[:, :, 0]
+    prev_denoised_frame_y = cv2.cvtColor(prev_denoised_frame, cv2.COLOR_BGR2YUV)[:, :, 0]
 
-    '''
-    flow = cv2.optflow.DenseRLOFOpticalFlow_create()
-    current_flow = flow.calc(prev_denoised_frame, current_frame, None)
-    '''
-
-    new_coords = flow_map - current_flow
-    aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC)
-    aligned_frame_gray = cv2.cvtColor(aligned_frame, cv2.COLOR_BGR2GRAY)
-
-    current_frame_gray = cv2.copyMakeBorder(current_frame_gray, padding_width, padding_width, padding_width,
-                                            padding_width,
-                                            cv2.BORDER_CONSTANT, value=0)
-    aligned_frame_gray = cv2.copyMakeBorder(aligned_frame_gray, padding_width, padding_width, padding_width,
+    current_frame_y = cv2.copyMakeBorder(current_frame_y, padding_width, padding_width, padding_width,
+                                         padding_width,
+                                         cv2.BORDER_CONSTANT, value=0)
+    prev_denoised_frame_y = cv2.copyMakeBorder(prev_denoised_frame_y, padding_width, padding_width, padding_width,
                                             padding_width,
                                             cv2.BORDER_CONSTANT, value=0)
     current_frame = cv2.copyMakeBorder(current_frame, padding_width, padding_width, padding_width, padding_width,
                                        cv2.BORDER_CONSTANT, value=0)
-    aligned_frame = cv2.copyMakeBorder(aligned_frame, padding_width, padding_width, padding_width, padding_width,
+    prev_denoised_frame = cv2.copyMakeBorder(prev_denoised_frame, padding_width, padding_width, padding_width, padding_width,
                                        cv2.BORDER_CONSTANT, value=0)
 
     # 应用去噪算法
     count = 0
-    denoised_frame = np.zeros((padding_h, padding_w, prev_frame.shape[2]), dtype=np.uint8)
+    denoised_frame = np.zeros((padding_h, padding_w, prev_frame.shape[2]), dtype=np.float64)
     for x in range(0, padding_h - win_size + 1):
         center_x = x + padding_width
         for y in range(0, padding_w - win_size + 1):
             center_y = y + padding_width
-            current_window = current_frame_gray[x: x + win_size, y: y + win_size]
-
-            diff = current_window.astype(np.float64) - aligned_frame_gray[center_x, center_y].astype(np.float64)
+            current_window = current_frame_y[x: x + win_size, y: y + win_size]
+            diff = current_window.astype(np.float64) - prev_denoised_frame_y[center_x, center_y].astype(np.float64)
             varx = np.mean(diff ** 2) - varn
+
             if varx < 0:
                 count = count + 1
                 varx = 0
+
             lam = varn / (varx + 0.1)
 
             factor1 = np.float64(current_frame[center_x, center_y]) / (1 + lam)
-            factor2 = np.float64(aligned_frame[center_x, center_y]) * lam / (1 + lam)
-            denoised_frame[center_x, center_y] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
+            factor2 = np.float64(prev_denoised_frame[center_x, center_y]) * lam / (1 + lam)
+            denoised_frame[center_x, center_y] = factor1 + factor2
 
     denoised_frame = denoised_frame[padding_width: -padding_width, padding_width: -padding_width, :]
-    current_frame = current_frame[padding_width: -padding_width, padding_width: -padding_width, :]
+    maxd = np.max(denoised_frame)
+    denoised_frame = denoised_frame / maxd * 255
+    denoised_frame = denoised_frame.astype(np.uint8)
+    # denoised_frame = cv2.bilateralFilter(denoised_frame, 10, 10, 10)
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
     prev_denoised_frame = denoised_frame
-    prev_frame = current_frame
 
     current_time = time.time()  # 获取当前时间
     elapsed_time = current_time - start_time  # 计算经过的时间
