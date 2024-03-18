@@ -32,7 +32,7 @@ for i in range(0, num_images):
     # 应用去噪算法
 
     # denoised_frame = cv2.fastNlMeansDenoisingColored(current_frame, None, 13, 13, 7, 21)
-    denoised_frame = cv2.bilateralFilter(current_frame, 10, 130, 130)
+    denoised_frame = cv2.bilateralFilter(current_frame, 10, 80, 80)
     denoised_frame = np.clip(denoised_frame, 0, 255).astype(np.uint8)
 
     output_path = os.path.join(output_folder, filename)

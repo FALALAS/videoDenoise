@@ -8,8 +8,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var625'
-output_folder = '0001clean_rewin_var625'
+noised_folder = 'y000sigma25'
+output_folder = '0001clean_rewin_ysigma25'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -60,8 +60,8 @@ for frame_number in range(1, num_images):
                         diff = np.float64(current_frame[x + i, y + j, c]) - np.float64(aligned_frame[x + i, y + j, c])
                         diff = diff ** 2
                         varx += diff
-                varx = varx / win_area - varn
-                lam = 10 * varn / (varx+1e-16)
+                varx = varx / win_area
+                lam = varn / (varx+1e-16)
                 for i in range(0, win_size):
                     for j in range(0, win_size):
                         factor1 = np.float64(current_frame[x + i, y + j, c]) / (1 + lam)

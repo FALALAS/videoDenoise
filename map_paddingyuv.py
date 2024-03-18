@@ -8,8 +8,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000sigma15'
-output_folder = '0001clean_paddingyuv5_var225'
+noised_folder = 'y000sigma25'
+output_folder = '0001clean_paddingyuv5_ysigma25'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -42,8 +42,8 @@ for frame_number in range(1, num_images):
     noised_path = os.path.join(noised_folder, filename)
     current_frame = cv2.imread(noised_path)
 
-    current_frame_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2YUV)[:,:,0]
-    prev_frame_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2YUV)[:,:,0]
+    current_frame_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2YUV)[:, :, 0]
+    prev_frame_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2YUV)[:, :, 0]
     flow = cv2.DISOpticalFlow_create(2)
     flow.setFinestScale(0)
     current_flow = flow.calc(prev_frame_gray, current_frame_gray, None)
@@ -55,7 +55,7 @@ for frame_number in range(1, num_images):
 
     new_coords = flow_map - current_flow
     aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC)
-    aligned_frame_gray = cv2.cvtColor(aligned_frame, cv2.COLOR_BGR2GRAY)
+    aligned_frame_gray = cv2.cvtColor(aligned_frame, cv2.COLOR_BGR2YUV)[:, :, 0]
 
     current_frame_gray = cv2.copyMakeBorder(current_frame_gray, padding_width, padding_width, padding_width,
                                             padding_width,

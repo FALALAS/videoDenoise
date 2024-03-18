@@ -20,8 +20,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000sigma15'
-output_folder = '0001clean_gray_var225'
+noised_folder = 'y000sigma25'
+output_folder = '0001clean_gray_ysigma25'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -52,15 +52,15 @@ for frame_number in range(1, num_images):
 
     current_frame_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
     prev_frame_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
-    '''
+
     flow = cv2.DISOpticalFlow_create(2)
     flow.setFinestScale(0)
     current_flow = flow.calc(prev_frame_gray, current_frame_gray, None)
+
     '''
-
-
     flow = cv2.optflow.DenseRLOFOpticalFlow_create()
     current_flow = flow.calc(prev_denoised_frame, current_frame, None)
+    '''
 
     new_coords = flow_map - current_flow
     aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC)
@@ -73,7 +73,7 @@ for frame_number in range(1, num_images):
             varx = np.float64(0)
             current_window_gray = current_frame_gray[x:x+win_size, y:y+win_size]
             aligned_window_gray = aligned_frame_gray[x:x+win_size, y:y+win_size]
-            diff = current_frame_gray - aligned_frame_gray
+            diff = current_window_gray - aligned_window_gray
 
             varx = np.mean(diff**2)
             lam = varn / (varx + 1e-16)

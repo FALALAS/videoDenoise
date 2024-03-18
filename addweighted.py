@@ -8,8 +8,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000var2500'
-output_folder = '0001clean_add_var2500'
+noised_folder = 'y000sigma25'
+output_folder = '0001clean_add_ysigma25'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -55,7 +55,7 @@ for i in range(1, num_images):
     new_coords = flow_map - current_flow
     aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC, borderMode=cv2.BORDER_TRANSPARENT)
     # 应用去噪算法
-    denoised_frame = cv2.addWeighted(current_frame, 0.39, aligned_frame, 0.62, 0)
+    denoised_frame = cv2.addWeighted(current_frame, 0.32, aligned_frame, 0.69, 0)
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)

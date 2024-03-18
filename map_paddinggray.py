@@ -8,8 +8,8 @@ start_time = time.time()
 
 # 文件夹路径
 clean_folder = '000'
-noised_folder = 'noised000sigma15'
-output_folder = '0001clean_paddinggray5_var225'
+noised_folder = 'y000sigma25'
+output_folder = '0001clean_paddinggray5_ysigma25'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
