@@ -3,17 +3,18 @@ import time
 from skimage.restoration import denoise_invariant, denoise_tv_chambolle, denoise_bilateral
 import cv2
 import numpy as np
-
+from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 start_time = time.time()
 
 # 文件夹路径
-noised_folder = 'noised000var2500'
-output_folder = '000_cv2_var2500_bilateralFilter'
+clean_folder = '000'
+noised_folder = 'noised000sigma15'
+output_folder = '000_cv2_var225_bilateralFilter'
 os.makedirs(output_folder, exist_ok=True)
 
 # 参数
 num_images = 100
-varn = 625
+varn = 225
 
 # 遍历图片文件
 for i in range(0, num_images):
@@ -31,7 +32,7 @@ for i in range(0, num_images):
     # 应用去噪算法
 
     # denoised_frame = cv2.fastNlMeansDenoisingColored(current_frame, None, 13, 13, 7, 21)
-    denoised_frame = cv2.bilateralFilter(current_frame, 10, 180, 180)
+    denoised_frame = cv2.bilateralFilter(current_frame, 10, 35, 35)
     denoised_frame = np.clip(denoised_frame, 0, 255).astype(np.uint8)
 
     output_path = os.path.join(output_folder, filename)
@@ -49,3 +50,21 @@ for i in range(0, num_images):
 # 释放资源
 
 cv2.destroyAllWindows()
+# List of PSNR values
+psnr_values = []
+
+# Loop through the image filenames
+for i in range(1, 100):
+    filename = f'{i:08d}.png'  # Format the filename (e.g., 0000000.png)
+
+    # Load the corresponding images from both folders
+    img1 = cv2.imread(os.path.join(output_folder, filename))
+    img2 = cv2.imread(os.path.join(clean_folder, filename))
+
+    # Calculate PSNR
+    psnr = compare_psnr(img1, img2)
+    psnr_values.append(psnr)
+
+# Calculate the average PSNR
+average_psnr = np.mean(psnr_values)
+print(f'Average PSNR: {average_psnr}')
