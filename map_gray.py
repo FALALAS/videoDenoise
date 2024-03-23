@@ -71,8 +71,8 @@ for frame_number in range(1, num_images):
     for x in range(0, prev_frame.shape[0], win_size):
         for y in range(0, prev_frame.shape[1], win_size):
             varx = np.float64(0)
-            current_window_gray = current_frame_gray[x:x+win_size, y:y+win_size]
-            aligned_window_gray = aligned_frame_gray[x:x+win_size, y:y+win_size]
+            current_window_gray = np.float64(current_frame_gray[x:x+win_size, y:y+win_size])
+            aligned_window_gray = np.float64(aligned_frame_gray[x:x+win_size, y:y+win_size])
             diff = current_window_gray - aligned_window_gray
 
             varx = np.mean(diff**2)

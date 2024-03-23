@@ -79,14 +79,15 @@ for frame_number in range(1, num_images):
 
             diff = current_window.astype(np.float64) - aligned_frame_gray[center_x, center_y].astype(np.float64)
             varx = np.mean(diff ** 2) - varn
-            if varx < 0:
+            if varx <= 0:
                 count = count + 1
-                varx = 0
-            lam = varn / (varx + 0.1)
+                denoised_frame[center_x, center_y] = aligned_frame[center_x, center_y]
+            if varx > 0:
+                lam = varn / (varx + 0.1)
 
-            factor1 = np.float64(current_frame[center_x, center_y]) / (1 + lam)
-            factor2 = np.float64(aligned_frame[center_x, center_y]) * lam / (1 + lam)
-            denoised_frame[center_x, center_y] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
+                factor1 = np.float64(current_frame[center_x, center_y]) / (1 + lam)
+                factor2 = np.float64(aligned_frame[center_x, center_y]) * lam / (1 + lam)
+                denoised_frame[center_x, center_y] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
 
     denoised_frame = denoised_frame[padding_width: -padding_width, padding_width: -padding_width, :]
     current_frame = current_frame[padding_width: -padding_width, padding_width: -padding_width, :]

@@ -4,16 +4,6 @@ import time
 import os
 from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 
-def adjusted_decay(x):
-    # 定义参数
-    a = 6.56
-    b = 0.3
-    c = 1.05
-    d = 1
-
-    # 计算函数值
-    return a * np.exp(-b * (x - c)) + d
-
 start_time = time.time()
 
 # 文件夹路径
