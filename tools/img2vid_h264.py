@@ -2,8 +2,8 @@ import cv2
 import os
 
 # 图片文件夹路径
-image_folder = '../000'  # 图片文件夹名
-video_name = 'output_videob.mp4'
+image_folder = '../000_prev5_var625'  # 图片文件夹名
+video_name = 'output_v.mp4'
 
 # 视频的帧率
 fps = 30

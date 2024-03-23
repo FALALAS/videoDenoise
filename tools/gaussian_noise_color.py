@@ -48,7 +48,7 @@ for i in range(100):
     noised_image = np.zeros((h, w, image.shape[2]), dtype=np.uint8)
     for x in range(0, h, win_size):
         for y in range(0, w, win_size):
-            for c in range (0,3):
+            for c in range(0, 3):
                 current_window = image[x: x + win_size, y: y + win_size, c]
                 noised_window = add_gaussian_noise(current_window)
 

@@ -12,7 +12,7 @@ def add_gaussian_noise(image):
     """
     row, col, ch = image.shape
     mean = 0
-    var = 25
+    var = 15
     sigma = var
 
     gauss = sigma * np.random.normal(mean, 1, (row, col, ch))
@@ -24,7 +24,7 @@ def add_gaussian_noise(image):
 
 # 源文件夹和目标文件夹
 source_folder = '../000'
-target_folder = '../noised000var625'
+target_folder = '../noised000var225'
 
 # 如果目标文件夹不存在，则创建它
 if not os.path.exists(target_folder):
