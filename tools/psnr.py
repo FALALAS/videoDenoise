@@ -27,20 +27,20 @@ def calculate_psnr(img1, img2):
 folder1 = '../000'  # Replace with the path to your '000' folder
 # folder2 = '../000_bi_var625'
 # folder2 = '../y000sigma25'
-folder2= '../noised000var225'
+# folder2 = '../noised000var225'
 # folder2 = '../0001clean_paddinggray5_var625'
 # folder2 = '../0001clean_rewin_var625'
 # folder2 = '../0001clean_rtvdLiao_var625'
-# folder2 = '../0001clean_padding11_var2500'
+folder2 = '../0001clean_333_var625'
 # folder2 = '../0001clean_rtvdLiao_ysigma25'
-#folder2 = '../000_bm3d_ysigma25'
+# folder2 = '../000_bm3d_ysigma25'
 # folder2 = '../000_cv2_var225_bilateralFilter'
 
 # List of PSNR values
 psnr_values = []
 
 # Loop through the image filenames
-for i in range(1, 100):
+for i in range(1, 99):
     filename = f'{i:08d}.png'  # Format the filename (e.g., 0000000.png)
 
     # Load the corresponding images from both folders

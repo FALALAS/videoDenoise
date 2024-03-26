@@ -39,6 +39,7 @@ win_size = 3
 win_area = win_size * win_size
 varn = 625
 padding_width = win_size // 2
+T = 100
 
 h = prev_frame.shape[0]
 w = prev_frame.shape[1]
@@ -91,16 +92,19 @@ for frame_number in range(1, num_images - 1):
             buff_diff = buffer_window.astype(np.float64) - miu
 
             diff = np.stack((prev_diff, current_diff, buff_diff))
-            varx = np.mean(diff ** 2) - varn
 
-            if varx > 0:
-                count = count+1
+            varx = np.mean(diff ** 2) - varn
+            if varx < 0:
+                varx = 0
+
+            if varx > T:
+                denoised_frame[center_x, center_y] = current_denoised_frame[center_x, center_y].astype(np.float64)
+            else:
+                count = count + 1
                 lam = varn / (varx + 1e-16)
                 factor1 = np.float64(current_frame[center_x, center_y]) / (1 + lam)
                 factor2 = np.float64(prev_denoised_frame[center_x, center_y]) * lam / (1 + lam)
                 denoised_frame[center_x, center_y] = factor1 + factor2
-            else:
-                denoised_frame[center_x, center_y] = current_denoised_frame[center_x, center_y].astype(np.float64)
 
     denoised_frame = denoised_frame[padding_width: -padding_width, padding_width: -padding_width, :]
     denoised_frame = np.clip(denoised_frame, 0, 255).astype(np.uint8)
