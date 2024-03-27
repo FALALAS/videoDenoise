@@ -7,9 +7,9 @@ from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 start_time = time.time()
 
 # 文件夹路径
-clean_folder = '000'
-noised_folder = 'y000sigma25'
-output_folder = '0001clean_paddingyuv5_ysigma25'
+clean_folder = '001'
+noised_folder = '001var625'
+output_folder = '0011clean_paddingyuv5_var625'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -21,7 +21,7 @@ output_path = os.path.join(output_folder, '00000000.png')
 cv2.imwrite(output_path, denoised_frame)
 
 # 参数
-num_images = 100
+num_images = 135
 win_size = 5
 win_area = win_size * win_size
 varn = 625
@@ -78,16 +78,16 @@ for frame_number in range(1, num_images):
             current_window = current_frame_gray[x: x + win_size, y: y + win_size]
 
             diff = current_window.astype(np.float64) - aligned_frame_gray[center_x, center_y].astype(np.float64)
-            varx = np.mean(diff ** 2) - varn
-            if varx <= 0:
+            varx = np.mean(diff ** 2) - varn/2
+            if varx < 0:
                 count = count + 1
-                denoised_frame[center_x, center_y] = aligned_frame[center_x, center_y]
-            if varx > 0:
-                lam = varn / (varx + 0.1)
+                varx = 0
 
-                factor1 = np.float64(current_frame[center_x, center_y]) / (1 + lam)
-                factor2 = np.float64(aligned_frame[center_x, center_y]) * lam / (1 + lam)
-                denoised_frame[center_x, center_y] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
+            lam = varn / (varx + 1e-16)
+
+            factor1 = np.float64(current_frame[center_x, center_y]) / (1 + lam)
+            factor2 = np.float64(aligned_frame[center_x, center_y]) * lam / (1 + lam)
+            denoised_frame[center_x, center_y] = np.clip(factor1 + factor2, 0, 255).astype(np.uint8)
 
     denoised_frame = denoised_frame[padding_width: -padding_width, padding_width: -padding_width, :]
     current_frame = current_frame[padding_width: -padding_width, padding_width: -padding_width, :]

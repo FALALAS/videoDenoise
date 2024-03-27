@@ -9,20 +9,23 @@ start_time = time.time()
 # 文件夹路径
 clean_folder = '001'
 noised_folder = '001var625'
-output_folder = '001_cv2_var625_bilateralFilter'
+output_folder = '001_merge'
 os.makedirs(output_folder, exist_ok=True)
 
 # 参数
 num_images = 100
 varn = 625
+num_merged = 10
 
 # 遍历图片文件
-for i in range(0, num_images):
+for i in range(0, num_images, num_merged):
     # 构造文件名
-    filename = f'{i:08d}.png'
-
-    noised_path = os.path.join(noised_folder, filename)
-    current_frame = cv2.imread(noised_path)
+    images = []
+    for j in range(i,i + num_merged):
+        filename = f'{j:08d}.png'
+        noised_path = os.path.join(noised_folder, filename)
+        current_frame = cv2.imread(noised_path)
+        images.append(current_frame)
 
     # 检查图片是否被成功加载
     if current_frame is None:

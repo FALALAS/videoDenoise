@@ -1,8 +1,8 @@
 import cv2
 
 # 视频文件路径
-video_path = 'output_video000.mp4'
-
+video_path = '../001.mp4'
+img_path = '../001'
 # 读取视频
 cap = cv2.VideoCapture(video_path)
 
@@ -24,7 +24,8 @@ for i in range(frame_count):
         break
 
     # 保存帧为图像
-    frame_filename = f"frame_{i:08d}.png"  # 格式化文件名
+    filename = f"{i:08d}.png"  # 格式化文件名
+    frame_filename = f"{img_path}/{filename}"
     cv2.imwrite(frame_filename, frame)
     print(f"帧 {i} 已保存为 {frame_filename}")
 

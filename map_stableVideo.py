@@ -7,9 +7,9 @@ from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 start_time = time.time()
 
 # 文件夹路径
-clean_folder = '000'
-noised_folder = '000var625'
-output_folder = '0001clean_paddinggray5_var625'
+clean_folder = '001'
+noised_folder = '001var625'
+output_folder = '0011clean_paddinggray5_var625_sv'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -21,7 +21,7 @@ output_path = os.path.join(output_folder, '00000000.png')
 cv2.imwrite(output_path, denoised_frame)
 
 # 参数
-num_images = 100
+num_images = 135
 win_size = 5
 win_area = win_size * win_size
 varn = 625
@@ -29,8 +29,6 @@ padding_width = win_size // 2
 
 h = prev_frame.shape[0]
 w = prev_frame.shape[1]
-flow_map = np.meshgrid(np.arange(w), np.arange(h))
-flow_map = np.stack(flow_map, axis=-1).astype(np.float32)  # 调整为三维数组
 
 padding_h = h + 2 * padding_width
 padding_w = w + 2 * padding_width
@@ -44,18 +42,7 @@ for frame_number in range(1, num_images):
 
     current_frame_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
     prev_frame_gray = cv2.cvtColor(prev_frame, cv2.COLOR_BGR2GRAY)
-    flow = cv2.DISOpticalFlow_create(2)
-    flow.setFinestScale(0)
-    current_flow = flow.calc(prev_frame_gray, current_frame_gray, None)
-
-    '''
-    flow = cv2.optflow.DenseRLOFOpticalFlow_create()
-    current_flow = flow.calc(prev_denoised_frame, current_frame, None)
-    '''
-
-    new_coords = flow_map - current_flow
-    aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC)
-    aligned_frame_gray = cv2.cvtColor(aligned_frame, cv2.COLOR_BGR2GRAY)
+    aligned_frame_gray = cv2.cvtColor(prev_denoised_frame, cv2.COLOR_BGR2GRAY)
 
     current_frame_gray = cv2.copyMakeBorder(current_frame_gray, padding_width, padding_width, padding_width,
                                             padding_width,
@@ -65,7 +52,7 @@ for frame_number in range(1, num_images):
                                             cv2.BORDER_CONSTANT, value=0)
     current_frame = cv2.copyMakeBorder(current_frame, padding_width, padding_width, padding_width, padding_width,
                                        cv2.BORDER_CONSTANT, value=0)
-    aligned_frame = cv2.copyMakeBorder(aligned_frame, padding_width, padding_width, padding_width, padding_width,
+    aligned_frame = cv2.copyMakeBorder(prev_denoised_frame, padding_width, padding_width, padding_width, padding_width,
                                        cv2.BORDER_CONSTANT, value=0)
 
     # 应用去噪算法
@@ -78,11 +65,11 @@ for frame_number in range(1, num_images):
             current_window = current_frame_gray[x: x + win_size, y: y + win_size]
 
             diff = current_window.astype(np.float64) - aligned_frame_gray[center_x, center_y].astype(np.float64)
-            varx = np.mean(diff ** 2) - varn/2
+            varx = np.mean(diff ** 2) - varn
             if varx < 0:
                 count = count + 1
                 varx = 0
-            lam = varn / (varx + 0.1)
+            lam = varn / (varx + 1e-16)
 
             factor1 = np.float64(current_frame[center_x, center_y]) / (1 + lam)
             factor2 = np.float64(aligned_frame[center_x, center_y]) * lam / (1 + lam)

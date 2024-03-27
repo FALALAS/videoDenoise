@@ -7,8 +7,8 @@ from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 start_time = time.time()
 
 # 文件夹路径
-clean_folder = '000'
-noised_folder = 'noised000var2500'
+clean_folder = '001'
+noised_folder = '001var625'
 output_folder = '000_bi_var2500'
 os.makedirs(output_folder, exist_ok=True)
 
