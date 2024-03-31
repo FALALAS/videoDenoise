@@ -4,6 +4,7 @@ from skimage.restoration import denoise_invariant, denoise_tv_chambolle, denoise
 import cv2
 import numpy as np
 from skimage.metrics import peak_signal_noise_ratio as compare_psnr
+
 start_time = time.time()
 
 # 文件夹路径
@@ -13,7 +14,7 @@ output_folder = '001_merge'
 os.makedirs(output_folder, exist_ok=True)
 
 # 参数
-num_images = 100
+num_images = 135
 varn = 625
 num_merged = 10
 
@@ -21,22 +22,16 @@ num_merged = 10
 for i in range(0, num_images, num_merged):
     # 构造文件名
     images = []
-    for j in range(i,i + num_merged):
+    for j in range(i, i + num_merged):
         filename = f'{j:08d}.png'
         noised_path = os.path.join(noised_folder, filename)
         current_frame = cv2.imread(noised_path)
         images.append(current_frame)
+    images_float = [img.astype(np.float64) for img in images]
+    merged_frame = np.mean(images_float, axis=0)
+    merged_frame = np.clip(merged_frame, 0, 255).astype(np.uint8)
 
-    # 检查图片是否被成功加载
-    if current_frame is None:
-        print(f"无法读取图像文件 {filename}")
-        continue
-
-    # 应用去噪算法
-
-    # denoised_frame = cv2.fastNlMeansDenoisingColored(current_frame, None, 13, 13, 7, 21)
-    denoised_frame = cv2.bilateralFilter(current_frame, 10, 80, 80)
-    denoised_frame = np.clip(denoised_frame, 0, 255).astype(np.uint8)
+    denoised_frame = merged_frame
 
     output_path = os.path.join(output_folder, filename)
     cv2.imwrite(output_path, denoised_frame)
@@ -46,28 +41,3 @@ for i in range(0, num_images, num_merged):
     elapsed_time = current_time - start_time  # 计算经过的时间
 
     print(f"已处理到第 {i} 帧，用时 {elapsed_time:.2f} 秒")
-
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-# 释放资源
-
-cv2.destroyAllWindows()
-# List of PSNR values
-psnr_values = []
-
-# Loop through the image filenames
-for i in range(1, 100):
-    filename = f'{i:08d}.png'  # Format the filename (e.g., 0000000.png)
-
-    # Load the corresponding images from both folders
-    img1 = cv2.imread(os.path.join(output_folder, filename))
-    img2 = cv2.imread(os.path.join(clean_folder, filename))
-
-    # Calculate PSNR
-    psnr = compare_psnr(img1, img2)
-    psnr_values.append(psnr)
-
-# Calculate the average PSNR
-average_psnr = np.mean(psnr_values)
-print(f'Average PSNR: {average_psnr}')

@@ -1,8 +1,8 @@
 import cv2
 
 # 视频文件路径
-video_path = '../001.mp4'
-img_path = '../001'
+video_path = '../002.mp4'
+img_path = '../002'
 # 读取视频
 cap = cv2.VideoCapture(video_path)
 

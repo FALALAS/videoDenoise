@@ -4,7 +4,6 @@ import time
 import os
 from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 
-
 def padding(frame, padding_width):
     padding_frame = cv2.copyMakeBorder(frame, padding_width, padding_width, padding_width, padding_width,
                                        cv2.BORDER_CONSTANT, value=0)

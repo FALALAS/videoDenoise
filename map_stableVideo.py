@@ -7,9 +7,9 @@ from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 start_time = time.time()
 
 # 文件夹路径
-clean_folder = '001'
-noised_folder = '001var625'
-output_folder = '0011clean_paddinggray5_var625_sv'
+clean_folder = '002'
+noised_folder = '002var625'
+output_folder = '0021clean_paddinggray5_var625_sv'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -21,7 +21,7 @@ output_path = os.path.join(output_folder, '00000000.png')
 cv2.imwrite(output_path, denoised_frame)
 
 # 参数
-num_images = 135
+num_images = 470
 win_size = 5
 win_area = win_size * win_size
 varn = 625
