@@ -7,7 +7,7 @@ from PIL import Image
 from torchvision import transforms
 
 # 加载LPIPS模型
-lpips_model = lpips.LPIPS(net='vgg')  # 你可以选择不同的模型，例如 'alex'
+lpips_model = lpips.LPIPS(net='alex')  # 你可以选择不同的模型，例如 'alex'
 
 # 图像转换
 transform = transforms.Compose([
@@ -28,13 +28,14 @@ def calculate_lpips(img1_path, img2_path):
 
 
 # Directories of the image folders
-folder1 = '../000'  # Replace with the path to your '000' folder
+folder1 = '../000/clean'  # Replace with the path to your '000' folder
 # folder2 = '000_bm3d_var100_est'
 # folder2 = '../noised000var625'
 # folder2 = '../0001clean_img_var100'
 # folder2 = '../0001clean_add_var625'
-folder2 = '../0001clean_rtvdLiao_var625'
-# folder2 = '../000_bm3d_var625'
+# folder2 = '../000/000var625'
+#folder2 = '../bilateralFilter/000_var625'
+folder2 = '../0001clean_paddinggray5_var625'
 # folder2 = '0001clean_rtvdLiao_var100'
 # folder2 = '../000_cv2_var625_bilateralFilter'
 

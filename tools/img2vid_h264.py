@@ -2,7 +2,8 @@ import cv2
 import os
 
 # 图片文件夹路径
-image_folder = '../0021clean_paddinggray5_var625_sv'  # 图片文件夹名
+# image_folder = '../0001clean_rtevd_var625'
+image_folder = '../0001clean_paddinggray5_var625'
 video_name = 'output.mp4'
 
 # 视频的帧率
@@ -22,7 +23,7 @@ fourcc = cv2.VideoWriter_fourcc(*'avc1')
 video = cv2.VideoWriter(video_name, fourcc, fps, (width, height))
 
 # 读取图片并添加到视频
-for i in range(1, 470):
+for i in range(1, 100):
     img_name = f"{i:08d}.png"  # 生成图片文件名
     img_path = os.path.join(image_folder, img_name)
     img = cv2.imread(img_path)

@@ -7,18 +7,27 @@ from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 start_time = time.time()
 
 # 文件夹路径
-clean_folder = '000'
-noised_folder = 'noised000var625'
-output_folder = '0001clean_rtevd_yuv5_ysigma25'
+clean_folder = './000/clean'
+noised_folder = './000/000var625'
+output_folder = '0001clean_rtevd_var625'
 exp_folder = "exp"
 os.makedirs(output_folder, exist_ok=True)
 os.makedirs(exp_folder, exist_ok=True)
 
-# 第一帧是干净的
+
+# 第一帧的双边滤波
+noised_path = os.path.join(noised_folder, '00000000.png')
+prev_frame = cv2.imread(noised_path)
+prev_denoised_frame = cv2.bilateralFilter(prev_frame, 5, 80, 80)
+
+'''
 clean_path = os.path.join(clean_folder, '00000000.png')
 prev_frame = cv2.imread(clean_path)
 prev_denoised_frame = prev_frame
-denoised_frame = prev_frame
+'''
+# 第一帧是干净的
+
+denoised_frame = prev_denoised_frame
 output_path = os.path.join(output_folder, '00000000.png')
 cv2.imwrite(output_path, denoised_frame)
 
@@ -29,9 +38,9 @@ win_area = win_size * win_size
 varn = 625
 padding_width = win_size // 2
 
-sigma_i = 30
-sigma_d = 30
-sigma_t = 40
+sigma_i = 41
+sigma_d = 39
+sigma_t = 38
 
 h = prev_frame.shape[0]
 w = prev_frame.shape[1]

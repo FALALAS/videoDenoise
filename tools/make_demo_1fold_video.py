@@ -5,10 +5,10 @@ from tqdm import tqdm
 
 def get_args():
     args = argparse.ArgumentParser()
-    args.add_argument('--lr_dir', type=str, default=r"D:\videoDenoise\001var625")
-    args.add_argument('--rec_dir', type=str, default=r"D:\videoDenoise\0011clean_paddinggray5_var625_sv")
+    args.add_argument('--lr_dir', type=str, default=r"D:\videoDenoise\000\clean")
+    args.add_argument('--rec_dir', type=str, default=r"D:\videoDenoise\000\000var625")
     args.add_argument('--save_path', type=str, default=r"D:\videoDenoise")
-    args.add_argument('--fps', type=int, default=20)
+    args.add_argument('--fps', type=int, default=30)
     args.add_argument('--img_height', type=int, default=720)
     args.add_argument('--img_width', type=int, default=1280)
 

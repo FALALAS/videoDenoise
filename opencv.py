@@ -7,9 +7,9 @@ from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 start_time = time.time()
 
 # 文件夹路径
-clean_folder = '000'
-noised_folder = '000var100'
-output_folder = './bilateralFilter/000_var100'
+clean_folder = './000/clean'
+noised_folder = './000/000var625'
+output_folder = './bilateralFilter/000_var625'
 os.makedirs(output_folder, exist_ok=True)
 
 # 参数
@@ -32,7 +32,7 @@ for i in range(0, num_images):
     # 应用去噪算法
 
     # denoised_frame = cv2.fastNlMeansDenoisingColored(current_frame, None, 13, 13, 7, 21)
-    denoised_frame = cv2.bilateralFilter(current_frame, 10, 30, 30)
+    denoised_frame = cv2.bilateralFilter(current_frame, 5, 110, 110)
     denoised_frame = np.clip(denoised_frame, 0, 255).astype(np.uint8)
 
     output_path = os.path.join(output_folder, filename)

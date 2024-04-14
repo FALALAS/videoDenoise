@@ -49,7 +49,7 @@ for frame_number in range(1, num_images):
         continue
 
     current_frame_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
-    prev_frame_gray = cv2.cvtColor(prev_denoised_frame, cv2.COLOR_BGR2GRAY)
+    prev_frame_grdenoised_frame = np.zeros((padding_h, padding_w, prev_frame.shape[2]), dtype=np.uint8)ay = cv2.cvtColor(prev_denoised_frame, cv2.COLOR_BGR2GRAY)
     flow = cv2.DISOpticalFlow_create(2)
     current_flow = flow.calc(prev_frame_gray, current_frame_gray, None)
 
@@ -63,7 +63,7 @@ for frame_number in range(1, num_images):
 
     # 应用去噪算法
     count = 0
-    denoised_frame = np.zeros((padding_h, padding_w, prev_frame.shape[2]), dtype=np.uint8)
+
     for x in range(0, padding_h - win_size + 1):
         center_x = x + padding_width
         for y in range(0, padding_w - win_size + 1):
