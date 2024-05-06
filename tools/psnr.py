@@ -33,14 +33,15 @@ folder1 = '../000/clean'  # Replace with the path to your '000' folder
 # folder2 = '../0001clean_rtvdLiao_var625'
 # folder2 = '../001var625'
 # folder2 = '../0001clean_rtvdLiao_ysigma25'
-folder2 = '../000_hdr+_var100'
+folder2 = '../000/000var100'
+# folder2 = '../000_hdr+_var100'
 # folder2 = '../001_cv2_var625_bilateralFilter'
 
 # List of PSNR values
 psnr_values = []
 
 # Loop through the image filenames
-for i in range(0, 98):
+for i in range(1, 98):
     filename = f'{i:08d}.png'  # Format the filename (e.g., 0000000.png)
 
     # Load the corresponding images from both folders

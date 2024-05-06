@@ -2,11 +2,11 @@ import cv2
 import os
 
 # 图片文件夹路径
-image_folder = '000'  # 图片文件夹名
+image_folder = '../0001clean_paddinggray5_var625'  # 图片文件夹名
 video_name = 'output_video000.avi'
 
 # 视频的帧率
-fps = 30
+fps = 15
 
 # 获取文件夹中的第一个图像文件，以确定视频的分辨率
 first_image = cv2.imread(os.path.join(image_folder, '00000000.png'))

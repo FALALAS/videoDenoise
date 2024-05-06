@@ -49,7 +49,8 @@ for frame_number in range(1, num_images):
         continue
 
     current_frame_gray = cv2.cvtColor(current_frame, cv2.COLOR_BGR2GRAY)
-    prev_frame_grdenoised_frame = np.zeros((padding_h, padding_w, prev_frame.shape[2]), dtype=np.uint8)ay = cv2.cvtColor(prev_denoised_frame, cv2.COLOR_BGR2GRAY)
+    prev_frame_grdenoised_frame = np.zeros((padding_h, padding_w, prev_frame.shape[2]), dtype=np.uint8)
+    prev_frame_gray = cv2.cvtColor(prev_denoised_frame, cv2.COLOR_BGR2GRAY)
     flow = cv2.DISOpticalFlow_create(2)
     current_flow = flow.calc(prev_frame_gray, current_frame_gray, None)
 

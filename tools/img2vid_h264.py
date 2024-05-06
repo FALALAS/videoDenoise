@@ -3,7 +3,7 @@ import os
 
 # 图片文件夹路径
 # image_folder = '../0001clean_rtevd_var625'
-image_folder = '../0001clean_paddinggray5_var625'
+image_folder = '../0001clean_rtevd_var625'
 video_name = 'output.mp4'
 
 # 视频的帧率

@@ -4,12 +4,19 @@ import time
 import os
 from skimage.metrics import peak_signal_noise_ratio as compare_psnr
 
+
+def padding(frame, padding_width):
+    padding_frame = cv2.copyMakeBorder(frame, padding_width, padding_width, padding_width, padding_width,
+                                       cv2.BORDER_REFLECT)
+    return padding_frame
+
+
 start_time = time.time()
 
 # 文件夹路径
 clean_folder = './000/clean'
-noised_folder = './000/000var100'
-output_folder = '0001clean_paddinggray5_var100'
+noised_folder = './000/000var625'
+output_folder = '0001clean_paddinggray5_var625'
 os.makedirs(output_folder, exist_ok=True)
 
 # 第一帧是干净的
@@ -24,7 +31,7 @@ cv2.imwrite(output_path, denoised_frame)
 num_images = 100
 win_size = 5
 win_area = win_size * win_size
-varn = 100
+varn = 625
 padding_width = win_size // 2
 
 h = prev_frame.shape[0]
@@ -57,16 +64,10 @@ for frame_number in range(1, num_images):
     aligned_frame = cv2.remap(prev_denoised_frame, new_coords, None, cv2.INTER_CUBIC)
     aligned_frame_gray = cv2.cvtColor(aligned_frame, cv2.COLOR_BGR2GRAY)
 
-    current_frame_gray = cv2.copyMakeBorder(current_frame_gray, padding_width, padding_width, padding_width,
-                                            padding_width,
-                                            cv2.BORDER_CONSTANT, value=0)
-    aligned_frame_gray = cv2.copyMakeBorder(aligned_frame_gray, padding_width, padding_width, padding_width,
-                                            padding_width,
-                                            cv2.BORDER_CONSTANT, value=0)
-    current_frame = cv2.copyMakeBorder(current_frame, padding_width, padding_width, padding_width, padding_width,
-                                       cv2.BORDER_CONSTANT, value=0)
-    aligned_frame = cv2.copyMakeBorder(aligned_frame, padding_width, padding_width, padding_width, padding_width,
-                                       cv2.BORDER_CONSTANT, value=0)
+    current_frame_gray = padding(current_frame_gray, padding_width)
+    aligned_frame_gray = padding(aligned_frame_gray, padding_width)
+    current_frame = padding(current_frame, padding_width)
+    aligned_frame = padding(aligned_frame, padding_width)
 
     # 应用去噪算法
     count = 0
@@ -78,7 +79,7 @@ for frame_number in range(1, num_images):
             current_window = current_frame_gray[x: x + win_size, y: y + win_size]
 
             diff = current_window.astype(np.float64) - aligned_frame_gray[center_x, center_y].astype(np.float64)
-            varx = np.mean(diff ** 2) - varn/2
+            varx = np.mean(diff ** 2) - varn
             if varx < 0:
                 count = count + 1
                 varx = 0
@@ -97,7 +98,7 @@ for frame_number in range(1, num_images):
 
     current_time = time.time()  # 获取当前时间
     elapsed_time = current_time - start_time  # 计算经过的时间
-    print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒异常窗口 {count} 个")
+    print(f"已处理到第 {frame_number} 帧，用时 {elapsed_time:.2f} 秒，异常窗口 {count} 个")
 
 # List of PSNR values
 psnr_values = []
